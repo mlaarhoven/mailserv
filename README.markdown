@@ -10,4 +10,4 @@ Some of the features include:
 
 [The Mailserv project](https://github.com/mailserv/mailserv) is hosted on github, and more information is available on [our github wiki](http://mailserv.github.com/).
 
-[Supported versions stable obsd5.8, devel obsd5.8   ](https://github.com/mailserv/mailserv/wiki/Mailserv-versions)
+[Supported versions stable obsd5.9, devel obsd7.2   ](https://github.com/mailserv/mailserv/wiki/Mailserv-versions)
