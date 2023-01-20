@@ -100,7 +100,7 @@ hi_ver_check=`uname -r | awk '{ if ($1 >= 4.9) print "true"; else print "false" 
 #version check
 if [[ $hi_ver_check == "true"  ]]; then
      ln -sf /usr/local/bin/python2.7 /usr/local/bin/python
-	 ln -sf /usr/local/bin/python2.7-2to3 /usr/local/bin/2to3
+	   ln -sf /usr/local/bin/python2.7-2to3 /usr/local/bin/2to3
      ln -sf /usr/local/bin/python2.7-config /usr/local/bin/python-config
      ln -sf /usr/local/bin/pydoc2.7  /usr/local/bin/pydoc
 	 
@@ -120,10 +120,16 @@ if [[ $hi_ver_check == "true"  ]]; then
      # Update your RAILS_GEM_VERSION
      # -----------------------------------------------------
      echo " Installing rails:"
-	 /usr/local/bin/gem install -V -v=2.3.4 rails --no-ri --no-rdoc;
+     /usr/local/bin/gem install -V -v=2.3.4 rails --no-ri --no-rdoc;
+
      echo " Installing rubby apps:"
      /usr/local/bin/gem install -V -v=1.6.21 highline;    
-     /usr/local/bin/gem install -V god rdoc mongrel fastercsv ruby-mysql;
+     /usr/local/bin/gem install -V god;
+     /usr/local/bin/gem install -V -v=4.2.2 rdoc;
+     /usr/local/bin/gem install -V mongrel;
+     /usr/local/bin/gem install -V fastercsv;
+     /usr/local/bin/gem install -V -v=2.9.14 ruby-mysql;
+     
 fi 
 
 # --------------------------------------------------------------
