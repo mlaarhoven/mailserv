@@ -38,18 +38,23 @@ php composer.phar install
 
 #make temp writable by the web server user
 chown www ${basedir}/webmail/temp
+#TODO chown www ${basedir}/webmail/logs
 
 #remove roundcube installer
 #Needed for bin/upgrade.sh
 #rm -r ${basedir}/webmail/installer
 
 echo "Installing Configuration"
+#TODO compare with config.inc.php.sample
 install -m 0644 /var/mailserv/install/templates/roundcube/conf/config.inc.php        #{basedir}/webmail/config/
+
 #install -m 0644 /var/mailserv/install/templates/roundcube/messagesize/config.inc.php #{basedir}/webmail/plugins/messagesize/
 install -m 0644 /var/mailserv/install/templates/roundcube/sieverules/config.inc.php  #{basedir}/webmail/plugins/sieverules/
 install -m 0644 /var/mailserv/install/templates/roundcube/sauserprefs/config.inc.php #{basedir}/webmail/plugins/sauserprefs/
 install -m 0644 /var/mailserv/install/templates/roundcube/password/config.inc.php    #{basedir}/webmail/plugins/password/
 
+
+# TODO only skin "elastic" is installed
 
 # taskbar = File.read("#{basedir}/webmail/skins/classic/includes/taskbar.html")
 # File.open("#{basedir}/webmail/skins/classic/includes/taskbar.html", "w") do |f|
