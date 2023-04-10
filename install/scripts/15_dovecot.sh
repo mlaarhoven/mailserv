@@ -8,22 +8,18 @@ pkg_add -v -m -I \
     dovecot-pigeonhole \
     dovecot-mysql
 
+# info
+# /usr/local/share/doc/pkg-readmes/dovecot
+# /etc/login.conf.d/dovecot
 
 template="/var/mailserv/install/templates"
 install -m 644 ${template}/dovecot.conf /etc/dovecot/local.conf
-install -m 644 ${template}/dovecot-sql.conf /etc/dovecot
-mv /etc/dovecot/conf.d/auth-system.conf.ext /etc/dovecot/conf.d/auth-system.conf.ext.org
-cat <<EOF > /etc/dovecot/conf.d/auth-system.conf.ext
-passdb {
-  args = /etc/dovecot/dovecot-sql.conf
-  driver = sql
-}
-userdb {
-  args = /etc/dovecot/dovecot-sql.conf
-  driver = sql
-}
-EOF
+# use auth-sql
+sed -i '/auth-system.conf.ext/s/^/#/g' /etc/dovecot/conf.d/10-auth.conf
+sed -i '/auth-sql.conf.ext/s/^#//g' /etc/dovecot/conf.d/10-auth.conf
+install -m 644 ${template}/dovecot-sql.conf /etc/dovecot/dovecot-sql.conf.ext
 
+rcctl enable dovecot
 
 
 #

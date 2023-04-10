@@ -3,7 +3,7 @@
 # Only run on install
 [[ "$1" != "install" ]] && exit 1
 
-pkg_add -v -m -I postfix-3.8.20220816p0-mysql
+pkg_add -v -m -I postfix-3.7.3p8-mysql
 
 template="/var/mailserv/install/templates/postfix"
 install -m 644 ${template}/main.cf /etc/postfix

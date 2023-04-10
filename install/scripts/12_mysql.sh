@@ -15,7 +15,7 @@ pkg_add -v -m -I mariadb-server
 
 #use default my.cnf
 #template="/var/mailserv/install/templates"
-#install -m 644 ${template}/my.cnf
+#install -m 644 ${template}/my.cnf /etc
 
 rcctl enable mysqld
 rcctl set mysqld flags --pid-file=mysql.pid

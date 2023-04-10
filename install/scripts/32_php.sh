@@ -5,30 +5,30 @@
 
 ## PHP
 pkg_add -v -m -I \
-    php-8.0.27 \
-    php-intl-8.0.27 \
-    php-mysqli-8.0.27 \
-    php-pdo_mysql-8.0.27 \
-    php-gd-8.0.27 \
+    php-8.1.16 \
+    php-intl-8.1.16 \
+    php-mysqli-8.1.16 \
+    php-pdo_mysql-8.1.16 \
+    php-gd-8.1.16 \
 
 # info
-# /usr/local/share/doc/pkg-readmes/php-8.0
+# /usr/local/share/doc/pkg-readmes/php-8.1
 
 # Create symlinks for all installed php extensions
-cd /etc/php-8.0.sample
-for i in *; do ln -sf ../php-8.0.sample/$i ../php-8.0/; done
+cd /etc/php-8.1.sample
+for i in *; do ln -sf ../php-8.1.sample/$i ../php-8.1/; done
 
 # Install our local changes to php.ini
-/usr/bin/install -m 644 /var/mailserv/install/templates/php-mailserv.ini /etc/php-8.0/mailserv.ini
+/usr/bin/install -m 644 /var/mailserv/install/templates/php-mailserv.ini /etc/php-8.1/mailserv.ini
 
 # Install php-fpm.conf
 /usr/bin/install -m 644 /var/mailserv/install/templates/php-fpm.conf /etc/ 
 
 # Make php easier to run from CLI
-ln -s /usr/local/bin/php-8.0 /usr/local/bin/php
+ln -s /usr/local/bin/php-8.1 /usr/local/bin/php
 
-rcctl enable php80_fpm
-rcctl start  php80_fpm
+rcctl enable php81_fpm
+rcctl start  php81_fpm
 
 
 ## PHPMYADMIN
