@@ -20,8 +20,6 @@ __EOT
 
         pkg_add -v -m -I \
             gnupg \
-            p5-Mail-SPF \
-            p5-Mail-SpamAssassin \
             ruby-3.0.5 \
             gsed \
             gtar--static \

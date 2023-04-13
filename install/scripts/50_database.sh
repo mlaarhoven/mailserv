@@ -16,8 +16,6 @@ case $1 in
 
     cd /var/mailserv/admin && /usr/local/bin/rake -s db:setup RAILS_ENV=production
     cd /var/mailserv/admin && /usr/local/bin/rake -s db:migrate RAILS_ENV=production
-    /usr/local/bin/mysql mail < /var/mailserv/install/templates/sql/mail.sql
-    /usr/local/bin/mysql < /var/mailserv/install/templates/sql/spamcontrol.sql
 
     echo "."
     ;;
@@ -26,8 +24,6 @@ case $1 in
     echo -n "  Updating database schema"
     # Update the database
     cd /var/mailserv/admin && /usr/local/bin/rake RAILS_ENV=production db:migrate
-    # Delete the cached javascript and stylesheet caches
-    rm -f /var/sfta/app/public/javascripts/all.js /var/sfta/app/public/stylesheets/all.css 2>/dev/null
     echo "."
     ;;
 
