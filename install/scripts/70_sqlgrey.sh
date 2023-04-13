@@ -2,6 +2,8 @@
 
 if [[ "$1" == "install" ]]; then
 
+  pkg_add -v -m sqlgrey
+
   install -m 644 /var/mailserv/install/templates/sqlgrey.conf /etc/sqlgrey/
   /usr/local/bin/mysqladmin create sqlgrey
   /usr/local/bin/mysql -e "grant all privileges on sqlgrey.* to 'sqlgrey'@'localhost' identified by 'sqlgrey';"

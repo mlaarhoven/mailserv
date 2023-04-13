@@ -40,14 +40,15 @@ echo "" >> /etc/motd
 # --------------------------------------------------------------
 # Setup package daemons
 # --------------------------------------------------------------
-# -s deprecated
-# rcctl set ntpd flags -s
 rcctl stop sndiod
 rcctl disable sndiod
 
 # add pidfile to flags
-rcctl set memcached flags `rcctl get memcached flags` --pidfile=/var/run/memcached/memcached.pid
+pkg_add -v -m memcached--
+# info
+# /usr/local/share/doc/pkg-readmes/memcached
 rcctl enable memcached
+rcctl set memcached flags `rcctl get memcached flags` --pidfile=/var/run/memcached/memcached.pid
 rcctl start  memcached
 
 #rcctl enable dnsmasq
@@ -91,18 +92,18 @@ fi
   #ln -sf /usr/local/bin/pydoc2.7  /usr/local/bin/pydoc
 
   # set default system ruby	 
-  ln -sf /usr/local/bin/ruby27 /usr/local/bin/ruby
-  ln -sf /usr/local/bin/erb27 /usr/local/bin/erb
-  ln -sf /usr/local/bin/irb27 /usr/local/bin/irb
-  ln -sf /usr/local/bin/rdoc27 /usr/local/bin/rdoc
-  ln -sf /usr/local/bin/ri27 /usr/local/bin/ri
-  ln -sf /usr/local/bin/rake27 /usr/local/bin/rake
-  ln -sf /usr/local/bin/gem27 /usr/local/bin/gem
-  ln -sf /usr/local/bin/bundle27 /usr/local/bin/bundle
-  ln -sf /usr/local/bin/bundler27 /usr/local/bin/bundler
-  ln -sf /usr/local/bin/racc27 /usr/local/bin/racc
-  ln -sf /usr/local/bin/racc2y27 /usr/local/bin/racc2y
-  ln -sf /usr/local/bin/y2racc27 /usr/local/bin/y2racc
+  ln -sf /usr/local/bin/ruby30 /usr/local/bin/ruby
+  ln -sf /usr/local/bin/erb30 /usr/local/bin/erb
+  ln -sf /usr/local/bin/irb30 /usr/local/bin/irb
+  ln -sf /usr/local/bin/rdoc30 /usr/local/bin/racc
+  ln -sf /usr/local/bin/rdoc30 /usr/local/bin/rdoc
+  ln -sf /usr/local/bin/rdoc30 /usr/local/bin/rbs
+  ln -sf /usr/local/bin/ri30 /usr/local/bin/ri
+  ln -sf /usr/local/bin/rake30 /usr/local/bin/rake
+  ln -sf /usr/local/bin/gem30 /usr/local/bin/gem
+  ln -sf /usr/local/bin/bundle30 /usr/local/bin/bundle
+  ln -sf /usr/local/bin/bundler30 /usr/local/bin/bundler
+  ln -sf /usr/local/bin/typeprof30 /usr/local/bin/typeprof
 
   # -----------------------------------------------------
   # Update your RAILS_GEM_VERSION
@@ -116,13 +117,6 @@ fi
   #ln -sf /usr/local/bin/mongrel_rails18 /usr/local/bin/mongrel_rails
   ln -sf /usr/local/bin/rails27 /usr/local/bin/rails 
   ln -sf /usr/local/bin/god27 /usr/local/bin/god
-
-
-# --------------------------------------------------------------
-# /var/cron/tabs/root
-# --------------------------------------------------------------
-cat /var/mailserv/install/templates/crontab_root >> /var/cron/tabs/root
-rcctl restart cron
 
 
 # --------------------------------------------------------------

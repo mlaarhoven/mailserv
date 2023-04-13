@@ -22,10 +22,7 @@ __EOT
             gnupg \
             p5-Mail-SPF \
             p5-Mail-SpamAssassin \
-            ruby-2.7.7 \
-            memcached-- \
-            openssl \
-            sqlgrey \
+            ruby-3.0.5 \
             gsed \
             gtar--static \
             ghostscript-fonts \

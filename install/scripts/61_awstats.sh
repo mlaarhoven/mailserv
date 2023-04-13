@@ -24,3 +24,11 @@ echo "Downloading AWStats version "
 # + aw_file.match(/([\d\.]+)\.(tar|zip)/)[1].to_s
 ftp -Vmo - $aw_file | tar -zxf - -C $basedir -s /awstats-[0-9\.]*/awstats/
 echo "done"
+
+
+
+cat <<EOF >> /etc/crontab
+# Awstats daily update
+*/15    *       *       *       *       root    /usr/local/awstats/cron-stats > /dev/null 2>&1
+
+EOF

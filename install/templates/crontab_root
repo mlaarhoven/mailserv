@@ -1,7 +1,0 @@
-
-# Awstats daily update
-*/15    *       *       *       *       /usr/local/awstats/cron-stats > /dev/null 2>&1
-
-#
-# Collect System stats
-*/5     *       *       *       *       /var/mailserv/scripts/rrdmon-poll >/dev/null 2>&1
