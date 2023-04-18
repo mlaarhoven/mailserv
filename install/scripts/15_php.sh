@@ -19,7 +19,7 @@ cd /etc/php-8.1.sample
 for i in *; do ln -sf ../php-8.1.sample/$i ../php-8.1/; done
 
 # Install our local changes to php.ini
-/usr/bin/install -m 644 /var/mailserv/install/templates/php-mailserv.ini /etc/php-8.1/mailserv.ini
+#TODO /usr/bin/install -m 644 /var/mailserv/install/templates/php-mailserv.ini /etc/php-8.1/mailserv.ini
 
 # Change options in php-fpm.conf
 sed -i '/pid = run\/php-fpm.pid/s/^;//' /etc/php-fpm.conf
