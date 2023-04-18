@@ -33,7 +33,7 @@ domain `hostname` {
     domain key "/etc/ssl/private/server.key"
     domain full chain certificate "/etc/ssl/server.crt"
     sign with letsencrypt    
-    challengedir /var/www/webmail/webmail
+    challengedir "/var/www/acme"
 }
 EOF
 
