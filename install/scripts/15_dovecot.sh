@@ -30,3 +30,18 @@ touch /var/log/imap
 chgrp _dovecot /usr/local/libexec/dovecot/dovecot-lda
 chmod 4750 /usr/local/libexec/dovecot/dovecot-lda
 mkdir -p /var/mailserv/mail
+
+#---------------------------------------------------------------
+#  increase openfiles limit to 1024 ( obsd usualy runs 128 )
+#  necessary to dovecot start up
+#  (when server reboot limits are read from login.conf, sysctl.conf) 
+#---------------------------------------------------------------
+maxfilestest=$( ulimit -n )
+
+if [ $maxfilestest -lt 1024 ];
+  then
+    echo " "
+    echo " setting openfiles-max to 1024 "
+    echo " "
+    ulimit -n 1024
+fi
