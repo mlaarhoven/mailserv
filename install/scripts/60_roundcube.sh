@@ -6,10 +6,10 @@
 basedir="/var/www/webmail"
 mkdir -p $basedir
 
-echo "Getting Roundcube version 1.6.0"
+echo "Getting Roundcube version 1.6.1"
 #system "ftp -Vmo - http://sourceforge.net/projects/roundcubemail/files/latest/download | tar zxf - -C #{basedir}"
-#force to install 1.6.0
-ftp -Vmo - https://github.com/roundcube/roundcubemail/releases/download/1.6.0/roundcubemail-1.6.0-complete.tar.gz | tar zxf - -C $basedir
+#force to install 1.6.1
+ftp -Vmo - https://github.com/roundcube/roundcubemail/releases/download/1.6.1/roundcubemail-1.6.1-complete.tar.gz | tar zxf - -C $basedir
 
 # Linking 
 rm -f ${basedir}/webmail
