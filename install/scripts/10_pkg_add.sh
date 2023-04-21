@@ -31,6 +31,5 @@ __EOT
             sudo--
             ;;
 #            dnsmasq \
-#            pecl-memcache \
 
 esac
