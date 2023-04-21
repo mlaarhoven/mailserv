@@ -24,10 +24,23 @@ cd /etc/php-8.1.sample
 for i in *; do ln -sf ../php-8.1.sample/$i ../php-8.1/; done
 
 # Install our local changes to php.ini
-#TODO /usr/bin/install -m 644 /var/mailserv/install/templates/php-mailserv.ini /etc/php-8.1/mailserv.ini
+#  memcached
 sed -i '/session.save_handler =/s/files/memcached/'     /etc/php-8.1.ini
 sed -i '/session.save_path =/s/\/tmp/127.0.0.1:11211/'  /etc/php-8.1.ini
 sed -i '/session.save_path =/s/^;session/session/'      /etc/php-8.1.ini
+#  upload
+sed -i '/upload_max_filesize =/s/=.*$/= 16M/'           /etc/php-8.1.ini
+sed -i '/post_max_size =/s/=.*$/= 16M/'                 /etc/php-8.1.ini
+#  mysql
+sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/run\/mysql\/mysql.sock/'   /etc/php-8.1.ini
+
+#TODO
+#max_execution_time = 120       # default = 30
+#max_input_time = 120           # default = 60
+#default_socket_timeout = 120   # default = 60
+#allow_url_fopen = On           # default = off
+
+
 
 # Change options in php-fpm.conf
 sed -i '/pid = run\/php-fpm.pid/s/^;//' /etc/php-fpm.conf

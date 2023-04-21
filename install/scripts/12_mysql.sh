@@ -29,8 +29,8 @@ rcctl set mysqld flags --pid-file=mysql.pid
 rcctl start  mysqld
 
 # Secure installation
-# mysql_secure_installation --defaults-file=/etc/my.cnf
-# run sql statements instead of running interactive script
+#mysql_secure_installation --defaults-file=/etc/my.cnf
+# Run sql statements instead of running interactive script
 # TODO Set the root password
 #rootpwd=`jot -r -c 12 32 127 | rs -g0`
 #mysql -e "UPDATE mysql.user SET Password=PASSWORD('complex_password') WHERE User='root';"
