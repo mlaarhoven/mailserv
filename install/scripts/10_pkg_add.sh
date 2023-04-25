@@ -9,7 +9,6 @@ case $1 in
 
     (install):
         echo "Installing packages"
-        mkdir -p /var/db/spamassassin
 
         cat <<__EOT
     

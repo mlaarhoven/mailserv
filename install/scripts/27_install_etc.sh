@@ -25,7 +25,7 @@ install -m 644 \
 
 install -m 600 ${template}/pf.conf /etc
 
-install -m 644 /var/mailserv/install/templates/spamassassin_local.cf /etc/mail/spamassassin/local.cf
+
 install -m 644 /var/mailserv/install/templates/rc.local /etc
 
 # --------------------------------------------------------------
@@ -45,10 +45,6 @@ rcctl disable sndiod
 
 #rcctl enable dnsmasq
 #rcctl start  dnsmasq
-
-rcctl enable spamassassin
-rcctl set spamassassin flags -u _spamdaemon -P -s mail -xq -r /var/run/spamassassin.pid -i 127.0.0.1
-rcctl start  spamassassin
 
 # --------------------------------------------------------------
 # /etc/services
