@@ -24,6 +24,18 @@ install -d -m 0711 -o _mysql -g _mysql /var/www/var/run/mysql
 sed -i '/socket/s/\/var\/run\/mysql\/mysql.sock/\/var\/www\/var\/run\/mysql\/mysql.sock/g' /etc/my.cnf
 sed -i '/socket/s/^#//g' /etc/my.cnf
 
+cat <<EOF >> /etc/my.cnf
+# Default collation+charset
+collation-server = utf8mb4_unicode_ci
+init-connect='SET NAMES utf8mb4'
+character-set-server = utf8mb4
+
+# Smaller buffers
+key_buffer_size=10M
+innodb_buffer_pool_size=32M
+EOF
+
+
 rcctl enable mysqld
 rcctl set mysqld flags --pid-file=mysql.pid
 rcctl start  mysqld
