@@ -12,6 +12,8 @@ case $1 in
     echo -n "  creating databases"
     unset VERSION
     /usr/local/bin/mysql -e "grant select on mail.* to 'postfix'@'localhost' identified by 'postfix';"
+
+    #also used by roundcube/password plugin
     /usr/local/bin/mysql -e "grant all privileges on mail.* to 'mailadmin'@'localhost' identified by 'mailadmin';"
 
     cd /var/mailserv/admin && /usr/local/bin/rake -s db:setup RAILS_ENV=production

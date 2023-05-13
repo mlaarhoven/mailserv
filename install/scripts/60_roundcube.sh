@@ -11,12 +11,16 @@ pkg_add -v -m -I roundcubemail rcube-contextmenu
 
 basedir="/var/www/roundcubemail"
 
+# create database
+/usr/local/bin/mysqladmin create webmail
+/usr/local/bin/mysql webmail < /var/www/roundcubemail/SQL/mysql.initial.sql
+
 # resolv+ssl in chroot
 mkdir -p /var/www/etc/ssl
 install -m 444 -o root -g bin /etc/resolv.conf /var/www/etc/
 install -m 444 -o root -g bin /etc/ssl/cert.pem /etc/ssl/openssl.cnf /var/www/etc/ssl/
 
-# copy mime.types within chroot
+# mime.types in chroot
 cp -p /usr/share/misc/mime.types /var/www/roundcubemail
 
 #remove roundcube installer
@@ -24,15 +28,17 @@ cp -p /usr/share/misc/mime.types /var/www/roundcubemail
 #rm -r ${basedir}/installer
 
 echo "Installing Configuration"
-#TODO compare with config.inc.php.sample
-#install -m 0644 /var/mailserv/install/templates/roundcube/conf/config.inc.php        #{basedir}/config/
+# use default config
 cp /var/www/roundcubemail/config/config.inc.php.sample /var/www/roundcubemail/config/config.inc.php
-
-#TODO 127.0.0.1??
+# connect to database
 sed -i "/^\$config\['db_dsnw'] =/s/=.*$/= 'mysql:\/\/webmail:webmail@localhost\/webmail';/" /var/www/roundcubemail/config/config.inc.php
+/usr/local/bin/mysql webmail -e "GRANT ALL PRIVILEGES ON webmail.* TO 'webmail'@'localhost' IDENTIFIED BY 'webmail'"
+/usr/local/bin/mysql webmail -e "FLUSH PRIVILEGES"
+
 
 # TODO
 cat <<EOF >> /var/www/roundcubemail/config/config.inc.php
+## MAILSERV
 \$config['log_driver'] = 'syslog';
 // default=LOG_USER
 // \$config['syslog_facility'] = LOG_LOCAL0;
@@ -71,23 +77,33 @@ cat <<EOF >> /var/www/roundcubemail/config/config.inc.php
 
 EOF
 
-# plugins
-# TODO 'sieverules', 'sauserprefs', 
+
+
+
+# Add active plugins
+#$config['plugins'] = [ 'vcard_attachments', 'password', 'contextmenu', 'emoticons',
+#    'archive',
+#    'zipdownload',
+#];
 sed -i "/\$config\['plugins'] =/s/=.*$/= \[ 'vcard_attachments', 'password', 'contextmenu', 'emoticons',/" /var/www/roundcubemail/config/config.inc.php
+# TODO 'sieverules', 'sauserprefs'
 
-
-
-
-#depracated? install -m 0644 /var/mailserv/install/templates/roundcube/messagesize/config.inc.php #{basedir}/plugins/messagesize/
 # TODO install -m 0644 /var/mailserv/install/templates/roundcube/sieverules/config.inc.php  #{basedir}/plugins/sieverules/
 # TODO install -m 0644 /var/mailserv/install/templates/roundcube/sauserprefs/config.inc.php #{basedir}/plugins/sauserprefs/
 
-#install -m 0644 /var/mailserv/install/templates/roundcube/password/config.inc.php    #{basedir}/plugins/password/
+
+## password plugin
+# use default config
 cp /var/www/roundcubemail/plugins/password/config.inc.php.dist /var/www/roundcubemail/plugins/password/config.inc.php
-sed -i "/^\$config\['password_db_dsn'] =/s/=.*$/= 'mysql:\/\/mailadmin:mailadmin@127.0.0.1\/mail';/" /var/www/roundcubemail/plugins/password/config.inc.php
+# password driver: mysql
+sed -i "/^\$config\['password_db_dsn'] =/s/=.*$/= 'mysql:\/\/webmail:webmail@127.0.0.1\/mail';/"    /var/www/roundcubemail/plugins/password/config.inc.php
 sed -i "/^\$config\['password_query'] =/s/=.*$/= 'UPDATE users SET password=%p WHERE email=%u AND password=%o LIMIT 1';/" /var/www/roundcubemail/plugins/password/config.inc.php
-# TODO? $config['password_strength_driver'] = 'pwned';
-# TODO? $config['password_minimum_score'] = 3;
+# grant mysql privileges
+/usr/local/bin/mysql -e "GRANT SELECT,UPDATE ON mail.users TO 'webmail'@'localhost'"
+/usr/local/bin/mysql -e "FLUSH PRIVILEGES"
+# password strength driver: HIBP
+sed -i "/^\$config\['password_strength_driver'] =/s/=.*$/= 'pwned';/"                               /var/www/roundcubemail/plugins/password/config.inc.php
+sed -i "/^\$config\['password_minimum_score'] =/s/=.*$/= 3;/"                                       /var/www/roundcubemail/plugins/password/config.inc.php
 
 
 
@@ -128,7 +144,3 @@ echo "If you have updated, please have a look at #{basedir}/SQL/mysql"
 echo "and apply as needed.\n\n"
 echo "Also, please test the plugins (especially sieve/filter, spam and password)."
 echo "This is especially true if you have installed a new major release.\n\n"
-
-/usr/local/bin/mysqladmin create webmail
-/usr/local/bin/mysql webmail < /var/www/roundcubemail/SQL/mysql.initial.sql
-/usr/local/bin/mysql webmail -e "grant all privileges on webmail.* to 'webmail'@'localhost' identified by 'webmail'"
