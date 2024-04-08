@@ -11,7 +11,7 @@ pkg_add -v -m -I mariadb-server
 # /etc/login.conf.d/mysqld
 
 # initialize MariaDB data directory
-/usr/local/bin/mysql_install_db
+/usr/local/bin/mariadb-install-db
 
 # TODO check old settings
 #template="/var/mailserv/install/templates"
@@ -34,6 +34,10 @@ character-set-server = utf8mb4
 key_buffer_size=10M
 innodb_buffer_pool_size=32M
 EOF
+
+
+# SETUP LOGROTATE
+# TODO /usr/local/share/examples/mysql/mysql-log-rotate
 
 
 rcctl enable mysqld
