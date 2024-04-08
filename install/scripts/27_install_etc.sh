@@ -80,18 +80,19 @@ fi
   #ln -sf /usr/local/bin/pydoc2.7  /usr/local/bin/pydoc
 
   # set default system ruby	 
-  ln -sf /usr/local/bin/ruby30 /usr/local/bin/ruby
-  ln -sf /usr/local/bin/erb30 /usr/local/bin/erb
-  ln -sf /usr/local/bin/irb30 /usr/local/bin/irb
-  ln -sf /usr/local/bin/rdoc30 /usr/local/bin/racc
-  ln -sf /usr/local/bin/rdoc30 /usr/local/bin/rdoc
-  ln -sf /usr/local/bin/rdoc30 /usr/local/bin/rbs
-  ln -sf /usr/local/bin/ri30 /usr/local/bin/ri
-  ln -sf /usr/local/bin/rake30 /usr/local/bin/rake
-  ln -sf /usr/local/bin/gem30 /usr/local/bin/gem
-  ln -sf /usr/local/bin/bundle30 /usr/local/bin/bundle
-  ln -sf /usr/local/bin/bundler30 /usr/local/bin/bundler
-  ln -sf /usr/local/bin/typeprof30 /usr/local/bin/typeprof
+ ln -sf /usr/local/bin/ruby31 /usr/local/bin/ruby
+ ln -sf /usr/local/bin/bundle31 /usr/local/bin/bundle
+ ln -sf /usr/local/bin/bundler31 /usr/local/bin/bundler
+ ln -sf /usr/local/bin/erb31 /usr/local/bin/erb
+ ln -sf /usr/local/bin/gem31 /usr/local/bin/gem
+ ln -sf /usr/local/bin/irb31 /usr/local/bin/irb
+ ln -sf /usr/local/bin/racc31 /usr/local/bin/racc
+ ln -sf /usr/local/bin/rake31 /usr/local/bin/rake
+ ln -sf /usr/local/bin/rbs31 /usr/local/bin/rbs
+ ln -sf /usr/local/bin/rdbg31 /usr/local/bin/rdbg
+ ln -sf /usr/local/bin/rdoc31 /usr/local/bin/rdoc
+ ln -sf /usr/local/bin/ri31 /usr/local/bin/ri
+ ln -sf /usr/local/bin/typeprof31 /usr/local/bin/typeprof
 
   # -----------------------------------------------------
   # Update your RAILS_GEM_VERSION

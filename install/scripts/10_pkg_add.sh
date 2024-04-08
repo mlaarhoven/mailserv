@@ -19,7 +19,7 @@ __EOT
 
         pkg_add -v -m -I \
             gnupg \
-            ruby-3.0.5 \
+            ruby-3.1.4p0 \
             gsed \
             gtar--static \
             ghostscript-fonts \
