@@ -17,11 +17,12 @@ install -m 644 \
   ${template}/daily.local \
   ${template}/monthly.local \
   ${template}/login.conf \
-  ${template}/newsyslog.conf \
   ${template}/profile \
   ${template}/rc.shutdown \
   ${template}/syslog.conf \
   /etc
+
+cat ${template}/newsyslog.conf >> /etc/newsyslog.conf
 
 install -m 600 ${template}/pf.conf /etc
 

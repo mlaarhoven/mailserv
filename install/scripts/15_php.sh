@@ -51,5 +51,11 @@ sed -i '/pm\.max_requests/s/^;//'       /etc/php-fpm.conf
 # Make php easier to run from CLI
 ln -s /usr/local/bin/php-8.2 /usr/local/bin/php
 
+
+cat <<EOF >> /etc/newsyslog.conf
+/var/log/php-fpm.log                    600  5     300  *     Z
+EOF
+
+
 rcctl enable php82_fpm
 rcctl start  php82_fpm
