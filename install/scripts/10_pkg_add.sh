@@ -19,7 +19,6 @@ __EOT
 
         pkg_add -v -m -I \
             gnupg \
-            ruby-3.1.4p0 \
             gsed \
             gtar--static \
             ghostscript-fonts \
@@ -29,6 +28,5 @@ __EOT
             vim--no_x11 \
             sudo--
             ;;
-#            dnsmasq \
 
 esac

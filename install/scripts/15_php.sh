@@ -19,6 +19,9 @@ pkg_add -v -m -I \
 # info
 # /usr/local/share/doc/pkg-readmes/php-8.2
 
+# use production ini
+# cp /usr/local/share/examples/php-8.2/php.ini-production /etc/php-8.2.ini
+
 # Create symlinks for all installed php extensions
 cd /etc/php-8.2.sample
 for i in *; do ln -sf ../php-8.2.sample/$i ../php-8.2/; done
@@ -32,8 +35,8 @@ sed -i '/session.save_path =/s/^;session/session/'      /etc/php-8.2.ini
 sed -i '/upload_max_filesize =/s/=.*$/= 16M/'           /etc/php-8.2.ini
 sed -i '/post_max_size =/s/=.*$/= 16M/'                 /etc/php-8.2.ini
 #  mysql
-sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
-sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/www\/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
+#sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
+#sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/www\/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
 
 #TODO
 #max_execution_time = 120       # default = 30
@@ -42,6 +45,8 @@ sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/www\/var\/run\/mysql\/mysql.soc
 #allow_url_fopen = On           # default = off
 
 
+# use sample config
+# cp /usr/local/share/examples/php-8.2/php-fpm.conf /etc/php-fpm.conf
 
 # Change options in php-fpm.conf
 sed -i '/pid = run\/php-fpm.pid/s/^;//' /etc/php-fpm.conf
@@ -51,7 +56,7 @@ sed -i '/pm\.max_requests/s/^;//'       /etc/php-fpm.conf
 # Make php easier to run from CLI
 ln -s /usr/local/bin/php-8.2 /usr/local/bin/php
 
-
+# rotate logs
 cat <<EOF >> /etc/newsyslog.conf
 /var/log/php-fpm.log                    600  5     300  *     Z
 EOF
