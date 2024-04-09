@@ -20,7 +20,7 @@ pkg_add -v -m -I \
 # /usr/local/share/doc/pkg-readmes/php-8.2
 
 # use production ini
-# cp /usr/local/share/examples/php-8.2/php.ini-production /etc/php-8.2.ini
+# cp -p /usr/local/share/examples/php-8.2/php.ini-production /etc/php-8.2.ini
 
 # Create symlinks for all installed php extensions
 cd /etc/php-8.2.sample
@@ -36,7 +36,6 @@ sed -i '/upload_max_filesize =/s/=.*$/= 16M/'           /etc/php-8.2.ini
 sed -i '/post_max_size =/s/=.*$/= 16M/'                 /etc/php-8.2.ini
 #  mysql
 sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
-sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/www\/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
 
 #TODO
 #max_execution_time = 120       # default = 30
@@ -46,7 +45,7 @@ sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/www\/var\/run\/mysql\/mysql.soc
 
 
 # use sample config
-# cp /usr/local/share/examples/php-8.2/php-fpm.conf /etc/php-fpm.conf
+# cp -p /usr/local/share/examples/php-8.2/php-fpm.conf /etc/php-fpm.conf
 
 # Change options in php-fpm.conf
 sed -i '/pid = run\/php-fpm.pid/s/^;//' /etc/php-fpm.conf
