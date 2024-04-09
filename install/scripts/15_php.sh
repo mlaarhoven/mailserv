@@ -35,8 +35,8 @@ sed -i '/session.save_path =/s/^;session/session/'      /etc/php-8.2.ini
 sed -i '/upload_max_filesize =/s/=.*$/= 16M/'           /etc/php-8.2.ini
 sed -i '/post_max_size =/s/=.*$/= 16M/'                 /etc/php-8.2.ini
 #  mysql
-#sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
-#sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/www\/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
+sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
+sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/www\/var\/run\/mysql\/mysql.sock/'   /etc/php-8.2.ini
 
 #TODO
 #max_execution_time = 120       # default = 30

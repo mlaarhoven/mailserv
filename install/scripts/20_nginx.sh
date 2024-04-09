@@ -20,5 +20,5 @@ install -m 644 ${template}/nginx.conf /etc/nginx
 
 rcctl enable nginx
 #No chroot
-rcctl set nginx flags -u
+#rcctl set nginx flags -u
 rcctl start  nginx

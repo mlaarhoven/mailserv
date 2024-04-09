@@ -22,9 +22,9 @@ pkg_add -v -m -I mariadb-server
 
 
 # Create and use a directory for the MariaDB socket within www chroot
-#install -d -m 0711 -o _mysql -g _mysql /var/www/var/run/mysql
-#sed -i '/socket/s/\/var\/run\/mysql\/mysql.sock/\/var\/www\/var\/run\/mysql\/mysql.sock/g' /etc/my.cnf
-#sed -i '/socket/s/^#//g' /etc/my.cnf
+install -d -m 0711 -o _mysql -g _mysql /var/www/var/run/mysql
+sed -i '/socket/s/\/var\/run\/mysql\/mysql.sock/\/var\/www\/var\/run\/mysql\/mysql.sock/g' /etc/my.cnf
+sed -i '/socket/s/^#//g' /etc/my.cnf
 
 cat <<EOF >> /etc/my.cnf
 
