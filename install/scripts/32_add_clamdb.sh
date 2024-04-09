@@ -9,12 +9,51 @@ pkg_add -v -m clamav
 # /usr/local/share/examples/clamav/freshclam.conf.sample
 # /usr/local/share/examples/clamav/clamav-milter.conf.sample
 
-template="/var/mailserv/install/templates"
-install -m 644 \
-  ${template}/clamd.conf \
-  ${template}/freshclam.conf \
-  ${template}/clamav-milter.conf \
-  /etc
+
+# clamd
+# cp -p /usr/local/share/examples/clamav/clamd.conf.sample /etc/clamd.conf
+sed -i '/^Example/s/^E/#E/'                /etc/clamd.conf
+
+sed -i '/^#LogSyslog/s/^#//'                /etc/clamd.conf
+sed -i '/^#LogFacility/s/^#//'              /etc/clamd.conf
+sed -i '/^#PidFile/s/^#//'                  /etc/clamd.conf
+sed -i '/^#LocalSocket \/tmp/s/^#//'        /etc/clamd.conf
+sed -i '/^#MaxConnectionQueueLength/s/^#//' /etc/clamd.conf
+#StreamMaxLength 20M
+#SelfCheck 1800
+#User _postfix
+
+
+# freshclam
+# cp -p /usr/local/share/examples/clamav/freshclam.conf.sample  /etc/freshclam.conf
+sed -i '/^Example/s/^E/#E/'                /etc/freshclam.conf
+
+sed -i '/^#UpdateLogFile/s/^#//'           /etc/freshclam.conf
+sed -i '/^#PidFile/s/^#//'                 /etc/freshclam.conf
+
+
+# clamav-milter
+# cp -p /usr/local/share/examples/clamav/clamav-milter.conf.sample  /etc/clamav-milter.conf
+sed -i '/^Example/s/^E/#E/'             /etc/clamav-milter.conf
+
+sed -i '/MilterSocket \/tmp/s/^#//'     /etc/clamav-milter.conf
+#User _postfix
+sed -i '/PidFile/s/^#//'                /etc/clamav-milter.conf
+sed -i '/^#ClamdSocket/a\
+ClamdSocket unix:/tmp/clamd.sock'       /etc/clamav-milter.conf
+
+sed -i '/^#OnInfected/s/^#//'           /etc/clamav-milter.conf
+sed -i '/^OnInfected/s/ .*$/ Reject/'   /etc/clamav-milter.conf
+#RejectMsg Message Infected with "%v"
+
+sed -i '/LogSyslog/s/^#//g'             /etc/clamav-milter.conf
+sed -i '/LogFacility/s/^#//g'           /etc/clamav-milter.conf
+
+sed -i '/^#LogInfected/s/^#//'          /etc/clamav-milter.conf
+sed -i '/^LogInfected/s/ .*$/ Full/'    /etc/clamav-milter.conf
+
+
+
 
 if [ ! -f /var/db/clamav/main.cld ]; then
   echo "Initial download of ClamAV AV Signatures"

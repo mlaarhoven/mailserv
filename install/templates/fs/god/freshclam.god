@@ -6,7 +6,7 @@ God.watch do |w|
   w.restart = "rcctl restart freshclam"
   w.start_grace = 10.seconds
   w.restart_grace = 10.seconds
-  w.pid_file = "/tmp/freshclam.pid"
+  w.pid_file = "/var/run/freshclam.pid"
 
   w.start_if do |start|
     start.condition(:process_running) do |c|
