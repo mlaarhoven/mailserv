@@ -20,9 +20,13 @@ echo "create database spamcontrol;" | mysql
 /usr/local/bin/mysql spamcontrol < /var/mailserv/install/templates/sql/spamcontrol.sql
        
 # mail.userpref
-/usr/local/bin/mysql mail < /usr/local/share/doc/SpamAssassin/sql/userpref_mysql.sql
+sed '/TYPE/s/TYPE/ENGINE/' /usr/local/share/doc/SpamAssassin/sql/userpref_mysql.sql | mysql mail
 # add GLOBAL userprefs
 /usr/local/bin/mysql mail < /var/mailserv/install/templates/sql/mail.sql
+
+#/usr/local/share/doc/SpamAssassin/sql/decodeshorturl_mysql.sql
+#/usr/local/share/doc/SpamAssassin/sql/txrep_mysql.sql
+
 
 install -m 644 /var/mailserv/install/templates/spamassassin_local.cf /etc/mail/spamassassin/local.cf
 
