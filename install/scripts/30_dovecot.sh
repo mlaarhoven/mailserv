@@ -14,8 +14,9 @@ pkg_add -v -m -I \
 # /usr/local/share/doc/dovecot/wiki/Quota.txt
 
 
-template="/var/mailserv/install/templates"
-#install -m 644 ${template}/dovecot.conf /etc/dovecot/local.conf
+# use example config
+# cp -rp /usr/local/share/examples/dovecot/example-config/* /etc/dovecot/
+# diff -r /usr/local/share/examples/dovecot/example-config/ /etc/dovecot/
 
 # use auth-sql
 sed -i '/auth-system.conf.ext/s/^!/#!/'                                     /etc/dovecot/conf.d/10-auth.conf
@@ -23,9 +24,9 @@ sed -i '/auth-sql.conf.ext/s/^#//'                                          /etc
 
 
 # /etc/dovecot/dovecot-sql.conf.ext
+# Mysql settings
 sed -i '/^#driver/s/^#//'                                                   /etc/dovecot/dovecot-sql.conf.ext
 sed -i '/^driver =/s/=.*$/= mysql/'                                         /etc/dovecot/dovecot-sql.conf.ext
-
 # TODO new dovecot user?
 sed -i '/^#connect/s/^#//'                                                  /etc/dovecot/dovecot-sql.conf.ext
 sed -i '/^connect =/s/=.*$/= host=127.0.0.1 dbname=mail user=postfix password=postfix/' /etc/dovecot/dovecot-sql.conf.ext
@@ -34,6 +35,7 @@ sed -i '/^connect =/s/=.*$/= host=127.0.0.1 dbname=mail user=postfix password=po
 sed -i '/^#default_pass_scheme/s/^#//'                                      /etc/dovecot/dovecot-sql.conf.ext
 sed -i '/^default_pass_scheme =/s/=.*$/= PLAIN/'                            /etc/dovecot/dovecot-sql.conf.ext
 
+# add password_query
 # find first password_query and add marker
 sed -i '1,/#password_query/s/#password_query/XXX/'                          /etc/dovecot/dovecot-sql.conf.ext
 # add new password_query before marker
@@ -44,7 +46,7 @@ password_query = SELECT email as user, password FROM users WHERE email = '"'"'%u
 # remove sample+marker
 sed -i '/XXX/,/^$/d'                                                        /etc/dovecot/dovecot-sql.conf.ext
 
-# add new user_query
+# add user_query
 sed -i '/^#user_query/i\
 user_query = SELECT id as uid, id as gid, home, concat('"'"'*:storage='"'"', quota, '"'"'M'"'"') AS quota_rule FROM users WHERE email = '"'"'%u'"'"'\
 \
@@ -52,7 +54,7 @@ user_query = SELECT id as uid, id as gid, home, concat('"'"'*:storage='"'"', quo
 # remove sample
 sed -i '/^#user_query/,/^$/d'                                               /etc/dovecot/dovecot-sql.conf.ext
 
-# add iterate query
+# add iterate_query
 sed -i '/^#iterate_query/s/^#//'                                            /etc/dovecot/dovecot-sql.conf.ext
 sed -i '/^iterate_query =/s/=.*$/= SELECT email AS user FROM users'         /etc/dovecot/dovecot-sql.conf.ext
 
@@ -72,6 +74,18 @@ sed -i '/^mail_plugins/s/=.*$/= quota/'                                     /etc
 
 
 # conf.d/10-master.conf
+# https://doc.dovecot.org/configuration_manual/howto/postfix_dovecot_lmtp/
+# LMTP socket for postfix
+sed -i '/unix_listener lmtp/i\
+  unix_listener /var/spool/postfix/private/dovecot-lmtp {\
+    mode = 0600\
+    user = _postfix\
+    #group = postfix\
+  }\
+'                                                                           /etc/dovecot/conf.d/10-master.conf
+#remove lmtp sample
+sed -i '/unix_listener lmtp/,/}/d'                                          /etc/dovecot/conf.d/10-master.conf
+
 # Use less memory
 sed -i '/^#default_vsz_limit/s/^#//'                                        /etc/dovecot/conf.d/10-master.conf
 sed -i '/^default_vsz_limit/s/=.*$/= 64M/'                                  /etc/dovecot/conf.d/10-master.conf
@@ -125,10 +139,50 @@ sed -i '/#quota_warning/s/#//'                                              /etc
 sed -i '/#quota = maildir/s/#//'                                            /etc/dovecot/conf.d/90-quota.conf 
 
 
+## TODO dovecot.conf
+#protocols = imap pop3 sieve
+#service auth {
+#  unix_listener /var/run/dovecot-auth-master {
+#   group = _dovecot
+#   mode = 0666
+#   user = _dovecot
+#  }  
+#  # Postfix smtp-auth
+#  # https://www.postfix.org/SASL_README.html#server_dovecot
+#  # https://www.postfix.org/SASL_README.html#server_sasl_enable
+#  unix_listener /var/spool/postfix/private/auth {
+#   group = _postfix
+#   mode = 0660
+#   user = _postfix
+# }
+#}
+#protocol lda {
+#  auth_socket_path = /var/run/dovecot-auth-master
+#  mail_plugins = $mail_plugins sieve
+#  postmaster_address = postmaster@hostname
+#  sendmail_path = /usr/sbin/sendmail
+#}
+# deprecated, replace with IMAPSieve 
+# https://wiki2.dovecot.org/Plugins/Antispam
+# https://doc.dovecot.org/configuration_manual/howto/antispam_with_sieve/
+#plugin {
+#  antispam_mail_notspam = --ham
+#  antispam_mail_sendmail = /usr/local/bin/sa-learn
+#   antispam_mail_sendmail_args = --username=%u
+#   antispam_mail_spam = --spam
+#   antispam_mail_tmpdir = /tmp
+#   antispam_signature = X-Spam-Flag
+#   antispam_signature_missing = move
+#   antispam_spam = SPAM;Spam;spam;Junk;junk
+#   antispam_trash = trash;Trash;Deleted Items;Deleted Messages
+# }
+
+
+
 
 /usr/local/bin/mysqladmin create mail
 /usr/local/bin/mysql -e "grant select on mail.* to 'postfix'@'localhost' identified by 'postfix';"
-/usr/local/bin/mysql webmail -e "FLUSH PRIVILEGES"
+/usr/local/bin/mysql mail -e "FLUSH PRIVILEGES"
 
 # Create tables
 echo "CREATE TABLE domains ( \
@@ -167,6 +221,7 @@ PRIMARY KEY (id)
 # (needed for delivery to different userids)
 #
 touch /var/log/imap
+#https://doc.dovecot.org/configuration_manual/protocols/lda/
 chgrp _dovecot /usr/local/libexec/dovecot/dovecot-lda
 chmod 4750 /usr/local/libexec/dovecot/dovecot-lda
 mkdir -p /var/mailserv/mail
