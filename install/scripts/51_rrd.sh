@@ -8,7 +8,7 @@ template="/var/mailserv/install/templates"
 install -m 644 ${template}/rrdmon.conf /etc
 
 # Create rrd databases
-rrd_dir = "/var/spool/rrd"
+rrd_dir="/var/spool/rrd"
 mkdir -p ${rrd_dir}
 
 # Accept data every 5 minutes
