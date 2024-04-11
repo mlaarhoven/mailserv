@@ -182,7 +182,7 @@ sed -i '/#quota = maildir/s/#//'                                            /etc
 
 /usr/local/bin/mysqladmin create mail
 /usr/local/bin/mysql -e "grant select on mail.* to 'postfix'@'localhost' identified by 'postfix';"
-/usr/local/bin/mysql mail -e "FLUSH PRIVILEGES"
+/usr/local/bin/mysql -e "FLUSH PRIVILEGES"
 
 # Create tables
 echo "CREATE TABLE domains ( \
