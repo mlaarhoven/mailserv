@@ -23,7 +23,6 @@ __EOT
             gtar--static \
             ghostscript-fonts \
             ghostscript--no_x11 \
-            ImageMagick \
             lynx \
             vim--no_x11 \
             sudo--
