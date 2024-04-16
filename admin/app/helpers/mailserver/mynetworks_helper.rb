@@ -1,2 +1,0 @@
-module Mailserver::MynetworksHelper
-end

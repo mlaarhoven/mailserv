@@ -1,2 +1,0 @@
-module System::AdministratorsHelper
-end
