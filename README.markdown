@@ -8,6 +8,6 @@ Some of the features include:
 * Easy to get started and flexible yet customize.
 * Built from best-of-breed open source components including Postfix, Dovecot, RoundCube webmail, SpamAssassin and ClamAV.
 
-[The Mailserv project](https://github.com/mailserv/mailserv) is hosted on github, and more information is available on [our github wiki](http://mailserv.github.com/).
+[The Mailserv project](https://github.com/mlaarhoven/mailserv) is hosted on github, and more information is available on [our github wiki](http://mailserv.github.io/).
 
-[Supported versions stable obsd5.9, devel obsd7.2   ](https://github.com/mailserv/mailserv/wiki/Mailserv-versions)
+[Supported versions stable obsd5.9, devel obsd7.3](https://github.com/mlaarhoven/mailserv/wiki/Mailserv-versions)
