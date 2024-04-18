@@ -13,17 +13,17 @@ basedir="/var/www/roundcubemail"
 
 # create database
 /usr/local/bin/mysqladmin create webmail
-/usr/local/bin/mysql webmail < /var/www/roundcubemail/SQL/mysql.initial.sql
+/usr/local/bin/mysql webmail < ${basedir}/SQL/mysql.initial.sql
 /usr/local/bin/mysql -e "GRANT ALL PRIVILEGES ON webmail.* TO 'webmail'@'localhost' IDENTIFIED BY 'webmail'"
 /usr/local/bin/mysql -e "FLUSH PRIVILEGES"
 
-# resolv+ssl in chroot
-mkdir -p /var/www/etc/ssl
-install -m 444 -o root -g bin /etc/resolv.conf /var/www/etc/
-install -m 444 -o root -g bin /etc/ssl/cert.pem /etc/ssl/openssl.cnf /var/www/etc/ssl/
+# resolv+ssl+mime in chroot
+install -D -m 444 -o root -g wheel /etc/hosts                   /var/www/etc/hosts
+install    -m 444 -o root -g wheel /etc/resolv.conf             /var/www/etc/
+install    -m 444 -o root -g bin   /usr/share/misc/mime.types   /var/www/etc/
+install -D -m 444 -o root -g bin   /etc/ssl/cert.pem            /var/www/etc/ssl/cert.pem
+install    -m 444 -o root -g bin   /etc/ssl/openssl.cnf         /var/www/etc/ssl/
 
-# mime.types in chroot
-cp -p /usr/share/misc/mime.types /var/www/roundcubemail
 
 #remove roundcube installer
 #Needed for bin/upgrade.sh
@@ -32,60 +32,54 @@ cp -p /usr/share/misc/mime.types /var/www/roundcubemail
 echo "Installing Configuration"
 # use default config
 # cp /var/www/roundcubemail/config/config.inc.php.sample /var/www/roundcubemail/config/config.inc.php
+# diff /var/www/roundcubemail/config/config.inc.php.sample /var/www/roundcubemail/config/config.inc.php
+
 # connect to mysql database
 sed -i "/^\$config\['db_dsnw'] =/s/=.*$/= 'mysql:\/\/webmail:webmail@localhost\/webmail';/" /var/www/roundcubemail/config/config.inc.php
 
+# create random des_key
+deskey=`jot -r -c 24 40 126 | rs -g0`
+sed -i "/^\$config\['des_key'] =/s/=.*$/= '${deskey}';/"  /var/www/roundcubemail/config/config.inc.php
 
-# TODO
-cat <<EOF >> /var/www/roundcubemail/config/config.inc.php
-## MAILSERV
+
+cat <<EOF >> ${basedir}/config/config.inc.php
+
+// Log to syslog
 \$config['log_driver'] = 'syslog';
-// default=LOG_USER
-// \$config['syslog_facility'] = LOG_LOCAL0;
+// Log successful/failed logins
 \$config['log_logins'] = true;
-\$config['memcache_hosts'] = ['127.0.0.1:11211'];
+
+// Use memcached
 \$config['imap_cache'] = 'memcached';
-\$config['mime_types'] = '/roundcubemail/mime.types';
-\$config['session_storage'] = 'db';
-\$config['draft_autosave'] = 60;
-
-// default=0(never). 1 - Allow from my contacts
-// \$config['show_images'] = 1;
-
-// default=0. Or use 4 - always, except when replying to plain text message??
-// \$config['htmleditor'] = 2;
+\$config['memcache_hosts'] = ['localhost:11211'];
 
 // Session lifetime in minutes
 // default=10. 1440=24h 
 // \$config['session_lifetime'] = 1440;
 
-// Clear Trash on logout
-//\$config['logout_purge'] = true;
+// Many identities with possibility to edit all params but not email address
+\$config['identities_level'] = 1;
+
+// Compose html formatted messages on forward or reply to HTML message
+\$config['htmleditor'] = 3;
+
+// Autosave every minute
+\$config['draft_autosave'] = 60;
+
 // Compact INBOX on logout
-//\$config['logout_expunge'] = true;
-// If true, after message delete/move, the next message will be displayed
-//\$config['display_next'] = false;
+\$config['logout_expunge'] = true;
 
-// IMAP AUTH type (DIGEST-MD5, CRAM-MD5, LOGIN, PLAIN or null to use best server supported one)
-\$config['imap_auth_type'] = 'plain';
-
-// enforce connections over https
-\$config['force_https'] = true;
-
-// Forces conversion of logins to lower case. 0 - disabled, 1 - only domain part, 2 - domain and local part.
-\$config['login_lc'] = 0;
+// Enables display of email address with name
+\$config['message_show_email'] = true;
 
 EOF
 
 
 
-
 # Add active plugins
-#$config['plugins'] = [ 'vcard_attachments', 'password', 'contextmenu', 'emoticons',
-#    'archive',
-#    'zipdownload',
-#];
-sed -i "/\$config\['plugins'] =/s/=.*$/= \[ 'vcard_attachments', 'password', 'contextmenu', 'emoticons',/" /var/www/roundcubemail/config/config.inc.php
+perl -0777 -pi -e "s/$config\['plugins'\] =.*\];/$config\['plugins'\] = \['archive','contextmenu','emoticons','markasjunk','password','vcard_attachments','zipdownload'\];/s"  \
+    /var/www/roundcubemail/config/config.inc.php
+
 # TODO 'sieverules', 'sauserprefs'
 
 # TODO install -m 0644 /var/mailserv/install/templates/roundcube/sieverules/config.inc.php  #{basedir}/plugins/sieverules/
@@ -95,8 +89,9 @@ sed -i "/\$config\['plugins'] =/s/=.*$/= \[ 'vcard_attachments', 'password', 'co
 ## password plugin
 # use default config
 # cp /var/www/roundcubemail/plugins/password/config.inc.php.dist /var/www/roundcubemail/plugins/password/config.inc.php
+# diff /var/www/roundcubemail/plugins/password/config.inc.php.dist /var/www/roundcubemail/plugins/password/config.inc.php
 # password driver: mysql
-sed -i "/^\$config\['password_db_dsn'] =/s/=.*$/= 'mysql:\/\/webmail:webmail@127.0.0.1\/mail';/"    /var/www/roundcubemail/plugins/password/config.inc.php
+sed -i "/^\$config\['password_db_dsn'] =/s/=.*$/= 'mysql:\/\/webmail:webmail@localhost\/mail';/"    /var/www/roundcubemail/plugins/password/config.inc.php
 sed -i "/^\$config\['password_query'] =/s/=.*$/= 'UPDATE users SET password=%p WHERE email=%u AND password=%o LIMIT 1';/" /var/www/roundcubemail/plugins/password/config.inc.php
 # grant mysql privileges
 /usr/local/bin/mysql -e "GRANT SELECT,UPDATE ON mail.users TO 'webmail'@'localhost'"
@@ -104,6 +99,9 @@ sed -i "/^\$config\['password_query'] =/s/=.*$/= 'UPDATE users SET password=%p W
 # password strength driver: HIBP
 sed -i "/^\$config\['password_strength_driver'] =/s/=.*$/= 'pwned';/"                               /var/www/roundcubemail/plugins/password/config.inc.php
 sed -i "/^\$config\['password_minimum_score'] =/s/=.*$/= 3;/"                                       /var/www/roundcubemail/plugins/password/config.inc.php
+
+
+
 
 
 
