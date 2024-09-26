@@ -21,6 +21,7 @@ pkg_add -v -m -I \
 
 # use production ini
 # cp -p /usr/local/share/examples/php-8.1/php.ini-production /etc/php-8.1.ini
+# diff /usr/local/share/examples/php-8.1/php.ini-production /etc/php-8.1.ini
 
 # Create symlinks for all installed php extensions
 cd /etc/php-8.1.sample
@@ -31,7 +32,7 @@ for i in *; do ln -sf ../php-8.1.sample/$i ../php-8.1/; done
 sed -i '/session.save_handler =/s/files/memcached/'     /etc/php-8.1.ini
 sed -i '/session.save_path =/s/\/tmp/127.0.0.1:11211/'  /etc/php-8.1.ini
 sed -i '/session.save_path =/s/^;session/session/'      /etc/php-8.1.ini
-#  upload
+#  upload max 16MB
 sed -i '/upload_max_filesize =/s/=.*$/= 16M/'           /etc/php-8.1.ini
 sed -i '/post_max_size =/s/=.*$/= 16M/'                 /etc/php-8.1.ini
 #  mysql
@@ -46,14 +47,16 @@ sed -i '/mysqli.default_socket =/s/=.*$/= \/var\/run\/mysql\/mysql.sock/'   /etc
 
 # use sample config
 # cp -p /usr/local/share/examples/php-8.1/php-fpm.conf /etc/php-fpm.conf
+# diff /usr/local/share/examples/php-8.1/php-fpm.conf /etc/php-fpm.conf
 
 # Change options in php-fpm.conf
+# use pid and max_requests for child process
 sed -i '/pid = run\/php-fpm.pid/s/^;//' /etc/php-fpm.conf
 sed -i '/pm\.max_requests/s/^;//'       /etc/php-fpm.conf
 #sed -i '/listen.mode/s/0660/0666/'      /etc/php-fpm.conf
 
 # Make php easier to run from CLI
-ln -s /usr/local/bin/php-8.1 /usr/local/bin/php
+#ln -s /usr/local/bin/php-8.1 /usr/local/bin/php
 
 # rotate logs
 cat <<EOF >> /etc/newsyslog.conf
