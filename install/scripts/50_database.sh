@@ -1,17 +1,12 @@
 #!/bin/sh
 
-/usr/local/bin/mysqladmin ping >/dev/null 2>&1
-while [ $? -ne 0 ]; do
-  sleep 1; /usr/local/bin/mysqladmin ping >/dev/null 2>&1
-done
-# We now know that the database is running
 
 case $1 in
 
   (install):
     echo -n "  creating databases"
     unset VERSION
-    /usr/local/bin/mysql -e "grant select on mail.* to 'postfix'@'localhost' identified by 'postfix';"
+    
 
     #also used by roundcube/password plugin
     /usr/local/bin/mysql -e "grant all privileges on mail.* to 'mailadmin'@'localhost' identified by 'mailadmin';"
