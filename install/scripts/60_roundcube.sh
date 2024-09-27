@@ -60,6 +60,10 @@ cat <<EOF >> ${basedir}/config/config.inc.php
 // Many identities with possibility to edit all params but not email address
 \$config['identities_level'] = 1;
 
+// Store spam and archive messages in this mailbox
+\$config['junk_mbox'] = 'Spam';
+\$config['archive_mbox'] = 'Archives';
+
 // Compose html formatted messages on forward or reply to HTML message
 \$config['htmleditor'] = 3;
 
@@ -77,7 +81,7 @@ EOF
 
 
 # Add active plugins
-perl -0777 -pi -e "s/$config\['plugins'\] =.*\];/$config\['plugins'\] = \['archive','contextmenu','emoticons','markasjunk','password','vcard_attachments','zipdownload'\];/s"  \
+perl -0777 -pi -e "s/$config\['plugins'\] =.*?\];/$config\['plugins'\] = \['archive','contextmenu','emoticons','markasjunk','password','vcard_attachments','zipdownload'\];/s"  \
     /var/www/roundcubemail/config/config.inc.php
 
 # TODO 'sieverules', 'sauserprefs'
@@ -138,7 +142,7 @@ sed -i "/^\$config\['password_minimum_score'] =/s/=.*$/= 3;/"                   
 
 
 echo "Finished\n\n"
-echo "If you have updated, please have a look at #{basedir}/SQL/mysql"
+echo "If you have updated, please have a look at ${basedir}/SQL/mysql"
 echo "and apply as needed.\n\n"
 echo "Also, please test the plugins (especially sieve/filter, spam and password)."
 echo "This is especially true if you have installed a new major release.\n\n"
