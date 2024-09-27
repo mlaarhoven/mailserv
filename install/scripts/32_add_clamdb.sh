@@ -50,6 +50,8 @@ sed -i '/^Example/s/^E/#E/'             /etc/clamav-milter.conf
 sed -i '/MilterSocket \/tmp/s/^#//'     /etc/clamav-milter.conf
 #User _postfix
 sed -i '/PidFile/s/^#//'                /etc/clamav-milter.conf
+sed -i '/^PidFile/s/ .*$/ \/var\/run\/clamav-milter.pid/' /etc/clamav-milter.conf
+
 sed -i '/^#ClamdSocket/a\
 ClamdSocket unix:/tmp/clamd.sock'       /etc/clamav-milter.conf
 
