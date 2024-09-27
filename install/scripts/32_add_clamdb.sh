@@ -12,13 +12,20 @@ pkg_add -v -m clamav
 
 # clamd
 # cp -p /usr/local/share/examples/clamav/clamd.conf.sample /etc/clamd.conf
+# diff /usr/local/share/examples/clamav/clamd.conf.sample /etc/clamd.conf
+
 sed -i '/^Example/s/^E/#E/'                /etc/clamd.conf
 
 sed -i '/^#LogSyslog/s/^#//'                /etc/clamd.conf
 sed -i '/^#LogFacility/s/^#//'              /etc/clamd.conf
+
 sed -i '/^#PidFile/s/^#//'                  /etc/clamd.conf
+sed -i '/^PidFile/s/ .*$/ \/var\/run\/clamd.pid/' /etc/clamd.conf
+
 sed -i '/^#LocalSocket \/tmp/s/^#//'        /etc/clamd.conf
+
 sed -i '/^#MaxConnectionQueueLength/s/^#//' /etc/clamd.conf
+# TODO?
 #StreamMaxLength 20M
 #SelfCheck 1800
 #User _postfix
@@ -26,14 +33,18 @@ sed -i '/^#MaxConnectionQueueLength/s/^#//' /etc/clamd.conf
 
 # freshclam
 # cp -p /usr/local/share/examples/clamav/freshclam.conf.sample  /etc/freshclam.conf
+# diff /usr/local/share/examples/clamav/freshclam.conf.sample  /etc/freshclam.conf
 sed -i '/^Example/s/^E/#E/'                /etc/freshclam.conf
 
 sed -i '/^#UpdateLogFile/s/^#//'           /etc/freshclam.conf
+
 sed -i '/^#PidFile/s/^#//'                 /etc/freshclam.conf
+sed -i '/^PidFile/s/ .*$/ \/var\/run\/freshclam.pid/'                 /etc/freshclam.conf
 
 
 # clamav-milter
 # cp -p /usr/local/share/examples/clamav/clamav-milter.conf.sample  /etc/clamav-milter.conf
+# diff /usr/local/share/examples/clamav/clamav-milter.conf.sample  /etc/clamav-milter.conf
 sed -i '/^Example/s/^E/#E/'             /etc/clamav-milter.conf
 
 sed -i '/MilterSocket \/tmp/s/^#//'     /etc/clamav-milter.conf
