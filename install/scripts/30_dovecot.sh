@@ -75,16 +75,30 @@ sed -i '/^mail_plugins/s/=.*$/= quota/'                                     /etc
 
 # conf.d/10-master.conf
 # https://doc.dovecot.org/configuration_manual/howto/postfix_dovecot_lmtp/
+# cp /usr/local/share/examples/dovecot/example-config/conf.d/10-master.conf  /etc/dovecot/conf.d/10-master.conf
+# diff /usr/local/share/examples/dovecot/example-config/conf.d/10-master.conf  /etc/dovecot/conf.d/10-master.conf
 # LMTP socket for postfix
-sed -i '/unix_listener lmtp/i\
-  unix_listener /var/spool/postfix/private/dovecot-lmtp {\
-    mode = 0600\
+#sed -i '/unix_listener lmtp/i\
+#  unix_listener /var/spool/postfix/private/dovecot-lmtp {\
+#    mode = 0600\
+#    user = _postfix\
+#    group = _postfix\
+#  }\
+#'                                                                            
+##remove lmtp sample
+#sed -i '/unix_listener lmtp/{,/}/d'                                          /etc/dovecot/conf.d/10-master.conf
+
+# Postfix smtp-auth
+# https://www.postfix.org/SASL_README.html#server_dovecot
+# https://www.postfix.org/SASL_README.html#server_sasl_enable
+sed -i '/private\/auth/,/}/d'                                                /etc/dovecot/conf.d/10-master.conf
+sed -i '/# Postfix smtp-auth/i\
+  unix_listener /var/spool/postfix/private/auth {\
+    mode = 0666\
     user = _postfix\
-    #group = postfix\
+    # group = _postfix\
   }\
 '                                                                           /etc/dovecot/conf.d/10-master.conf
-#remove lmtp sample
-sed -i '/unix_listener lmtp/,/}/d'                                          /etc/dovecot/conf.d/10-master.conf
 
 # Use less memory
 sed -i '/^#default_vsz_limit/s/^#//'                                        /etc/dovecot/conf.d/10-master.conf
@@ -98,8 +112,15 @@ sed -i '/ssl_key =/s/=.*$/= <\/etc\/ssl\/private\/server.key/'              /etc
 
 
 # conf.d/15-mailboxes.conf
+# cp /usr/local/share/examples/dovecot/example-config/conf.d/15-mailboxes.conf /etc/dovecot/conf.d/15-mailboxes.conf
 # Junk -> Spam
 sed -i '/mailbox Junk/s/Junk/Spam/'                                         /etc/dovecot/conf.d/15-mailboxes.conf
+# Add Archives
+sed -i '/mailbox Spam {/i\
+  mailbox Archives {\
+    special_use = \\Archive\
+  }
+'                                                                           /etc/dovecot/conf.d/15-mailboxes.conf
 # Only "Sent"
 sed -i '/mailbox "Sent Messages"/,/}/d'                                     /etc/dovecot/conf.d/15-mailboxes.conf
 # auto = subscribe
@@ -118,7 +139,7 @@ sed -i '/mail_plugins/s/=.*$/= $mail_plugins imap_quota/'                   /etc
 
 # conf.d/20-pop3.conf
 #  POP3 UIDL (unique mail identifier) format to use
-# TODO use default?
+# TODO use default? (default = %08Xu%08Xv)
 sed -i '/^#pop3_uidl_format/s/^#//'                                         /etc/dovecot/conf.d/20-pop3.conf
 sed -i '/pop3_uidl_format =/s/=.*$/= %08Xv%08Xu/'                           /etc/dovecot/conf.d/20-pop3.conf
 # Workarounds for various client bugs
@@ -126,7 +147,9 @@ sed -i '/^#pop3_client_workarounds/s/^#//'                                  /etc
 sed -i '/pop3_client_workarounds =/s/=.*$/= outlook-no-nuls oe-ns-eoh/'     /etc/dovecot/conf.d/20-pop3.conf
 
 
-# conf.d/90-quota.conf 
+# conf.d/90-quota.conf
+# https://doc.dovecot.org/configuration_manual/quota_plugin/ 
+# cp /usr/local/share/examples/dovecot/example-config/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf
 # General quota limits
 sed -i '1,/#quota_rule/s/#quota_rule/quota_rule/'                           /etc/dovecot/conf.d/90-quota.conf 
 sed -i '1,/#quota_rule2/s/#quota_rule2/quota_rule2/'                        /etc/dovecot/conf.d/90-quota.conf 
@@ -140,22 +163,7 @@ sed -i '/#quota = maildir/s/#//'                                            /etc
 
 
 ## TODO dovecot.conf
-#protocols = imap pop3 sieve
-#service auth {
-#  unix_listener /var/run/dovecot-auth-master {
-#   group = _dovecot
-#   mode = 0666
-#   user = _dovecot
-#  }  
-#  # Postfix smtp-auth
-#  # https://www.postfix.org/SASL_README.html#server_dovecot
-#  # https://www.postfix.org/SASL_README.html#server_sasl_enable
-#  unix_listener /var/spool/postfix/private/auth {
-#   group = _postfix
-#   mode = 0660
-#   user = _postfix
-# }
-#}
+
 #protocol lda {
 #  auth_socket_path = /var/run/dovecot-auth-master
 #  mail_plugins = $mail_plugins sieve
