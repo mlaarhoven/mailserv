@@ -18,12 +18,13 @@ pkg_add -v -m -I \
 # cp -rp /usr/local/share/examples/dovecot/example-config/* /etc/dovecot/
 # diff -r /usr/local/share/examples/dovecot/example-config/ /etc/dovecot/
 
+### conf.d/10-auth.conf
 # use auth-sql
 sed -i '/auth-system.conf.ext/s/^!/#!/'                                     /etc/dovecot/conf.d/10-auth.conf
 sed -i '/auth-sql.conf.ext/s/^#//'                                          /etc/dovecot/conf.d/10-auth.conf
 
 
-# /etc/dovecot/dovecot-sql.conf.ext
+### /etc/dovecot/dovecot-sql.conf.ext
 # Mysql settings
 sed -i '/^#driver/s/^#//'                                                   /etc/dovecot/dovecot-sql.conf.ext
 sed -i '/^driver =/s/=.*$/= mysql/'                                         /etc/dovecot/dovecot-sql.conf.ext
@@ -31,7 +32,7 @@ sed -i '/^driver =/s/=.*$/= mysql/'                                         /etc
 sed -i '/^#connect/s/^#//'                                                  /etc/dovecot/dovecot-sql.conf.ext
 sed -i '/^connect =/s/=.*$/= host=127.0.0.1 dbname=mail user=postfix password=postfix/' /etc/dovecot/dovecot-sql.conf.ext
 
-# TODO use PLAIN?
+# TODO not use PLAIN?
 sed -i '/^#default_pass_scheme/s/^#//'                                      /etc/dovecot/dovecot-sql.conf.ext
 sed -i '/^default_pass_scheme =/s/=.*$/= PLAIN/'                            /etc/dovecot/dovecot-sql.conf.ext
 
@@ -59,60 +60,35 @@ sed -i '/^#iterate_query/s/^#//'                                            /etc
 sed -i '/^iterate_query =/s/=.*$/= SELECT email AS user FROM users'         /etc/dovecot/dovecot-sql.conf.ext
 
 
-# conf.d/10-auth.conf
+### conf.d/10-auth.conf
 # Enables the PLAIN and LOGIN authentication mechanisms. The LOGIN mechanism is obsolete, but still used by old Outlooks and some Microsoft phones.
 sed -i '/auth_mechanisms/s/=.*$/= plain login/'                             /etc/dovecot/conf.d/10-auth.conf
 
 
-# conf.d/10-mail.conf
+#### conf.d/10-mail.conf
 # Set the location of the mailboxes
 sed -i '/^#mail_location/s/^#//'                                            /etc/dovecot/conf.d/10-mail.conf
 sed -i '/^mail_location/s/=.*$/= maildir:\/var\/mailserv\/mail\/%d\/%n/'    /etc/dovecot/conf.d/10-mail.conf
 # Use quota plugin
 sed -i '/^#mail_plugins/s/^#//'                                             /etc/dovecot/conf.d/10-mail.conf
 sed -i '/^mail_plugins/s/=.*$/= quota/'                                     /etc/dovecot/conf.d/10-mail.conf
+# Valid UID range for users
+sed -i '/^first_valid_uid/s/=.*$/= 2000/'                                   /etc/dovecot/conf.d/10-mail.conf
 
 
-# conf.d/10-master.conf
-# https://doc.dovecot.org/configuration_manual/howto/postfix_dovecot_lmtp/
-# cp /usr/local/share/examples/dovecot/example-config/conf.d/10-master.conf  /etc/dovecot/conf.d/10-master.conf
-# diff /usr/local/share/examples/dovecot/example-config/conf.d/10-master.conf  /etc/dovecot/conf.d/10-master.conf
-# LMTP socket for postfix
-#sed -i '/unix_listener lmtp/i\
-#  unix_listener /var/spool/postfix/private/dovecot-lmtp {\
-#    mode = 0600\
-#    user = _postfix\
-#    group = _postfix\
-#  }\
-#'                                                                            
-##remove lmtp sample
-#sed -i '/unix_listener lmtp/{,/}/d'                                          /etc/dovecot/conf.d/10-master.conf
-
-# Postfix smtp-auth
-# https://www.postfix.org/SASL_README.html#server_dovecot
-# https://www.postfix.org/SASL_README.html#server_sasl_enable
-sed -i '/private\/auth/,/}/d'                                                /etc/dovecot/conf.d/10-master.conf
-sed -i '/# Postfix smtp-auth/i\
-  unix_listener /var/spool/postfix/private/auth {\
-    mode = 0666\
-    user = _postfix\
-    # group = _postfix\
-  }\
-'                                                                           /etc/dovecot/conf.d/10-master.conf
-
+### conf.d/10-master.conf
 # Use less memory
 sed -i '/^#default_vsz_limit/s/^#//'                                        /etc/dovecot/conf.d/10-master.conf
 sed -i '/^default_vsz_limit/s/=.*$/= 64M/'                                  /etc/dovecot/conf.d/10-master.conf
 
 
-# conf.d/10-ssl.conf
+### conf.d/10-ssl.conf
 # Use our certificate+key
 sed -i '/ssl_cert =/s/=.*$/= <\/etc\/ssl\/server.crt/'                      /etc/dovecot/conf.d/10-ssl.conf
 sed -i '/ssl_key =/s/=.*$/= <\/etc\/ssl\/private\/server.key/'              /etc/dovecot/conf.d/10-ssl.conf
 
 
-# conf.d/15-mailboxes.conf
-# cp /usr/local/share/examples/dovecot/example-config/conf.d/15-mailboxes.conf /etc/dovecot/conf.d/15-mailboxes.conf
+### conf.d/15-mailboxes.conf
 # Junk -> Spam
 sed -i '/mailbox Junk/s/Junk/Spam/'                                         /etc/dovecot/conf.d/15-mailboxes.conf
 # Add Archives
@@ -129,7 +105,22 @@ sed -i '/^[[:blank:]]*special_use =/i\
 '                                                                           /etc/dovecot/conf.d/15-mailboxes.conf
 
 
-# conf.d/20-imap.conf
+### conf.d/15-lda.conf
+# use + or - as recipient_delimiter for detail mailboxes
+sed -i '/^recipient_delimiter/s/=.*$/= +-/'                                 /etc/dovecot/conf.d/15-lda.conf
+
+
+### conf.d/20-lmtp.conf
+# try to save the mail to the detail mailbox
+sed -i '/^#lmtp_save_to_detail_mailbox/s/^#//'                              /etc/dovecot/conf.d/20-lmtp.conf
+sed -i '/^lmtp_save_to_detail_mailbox/s/=.*$/= yes/'                        /etc/dovecot/conf.d/20-lmtp.conf
+
+# Verify quota before replying to RCPT TO.
+sed -i '/^#lmtp_rcpt_check_quota/s/^#//'                                    /etc/dovecot/conf.d/20-lmtp.conf
+sed -i '/^lmtp_rcpt_check_quota/s/=.*$/= yes/'                              /etc/dovecot/conf.d/20-lmtp.conf
+
+
+### conf.d/20-imap.conf
 sed -i '/imap_client_workarounds/s/^#//'                                    /etc/dovecot/conf.d/20-imap.conf
 sed -i '/imap_client_workarounds/s/=.*$/= delay-newmail/'                   /etc/dovecot/conf.d/20-imap.conf
 # Add plugin imap_quota
@@ -137,7 +128,7 @@ sed -i '/mail_plugins/s/#mail_plugins/mail_plugins/'                        /etc
 sed -i '/mail_plugins/s/=.*$/= $mail_plugins imap_quota/'                   /etc/dovecot/conf.d/20-imap.conf
 
 
-# conf.d/20-pop3.conf
+### conf.d/20-pop3.conf
 #  POP3 UIDL (unique mail identifier) format to use
 # TODO use default? (default = %08Xu%08Xv)
 sed -i '/^#pop3_uidl_format/s/^#//'                                         /etc/dovecot/conf.d/20-pop3.conf
@@ -147,9 +138,12 @@ sed -i '/^#pop3_client_workarounds/s/^#//'                                  /etc
 sed -i '/pop3_client_workarounds =/s/=.*$/= outlook-no-nuls oe-ns-eoh/'     /etc/dovecot/conf.d/20-pop3.conf
 
 
-# conf.d/90-quota.conf
+# remove sieve_deprecated
+sed -i '/inet_listener sieve_deprecated/,/}/d'                              /etc/dovecot/conf.d/20-managesieve.conf
+
+
+### conf.d/90-quota.conf
 # https://doc.dovecot.org/configuration_manual/quota_plugin/ 
-# cp /usr/local/share/examples/dovecot/example-config/conf.d/90-quota.conf /etc/dovecot/conf.d/90-quota.conf
 # General quota limits
 sed -i '1,/#quota_rule/s/#quota_rule/quota_rule/'                           /etc/dovecot/conf.d/90-quota.conf 
 sed -i '1,/#quota_rule2/s/#quota_rule2/quota_rule2/'                        /etc/dovecot/conf.d/90-quota.conf 
@@ -165,10 +159,7 @@ sed -i '/#quota = maildir/s/#//'                                            /etc
 ## TODO dovecot.conf
 
 #protocol lda {
-#  auth_socket_path = /var/run/dovecot-auth-master
 #  mail_plugins = $mail_plugins sieve
-#  postmaster_address = postmaster@hostname
-#  sendmail_path = /usr/sbin/sendmail
 #}
 # deprecated, replace with IMAPSieve 
 # https://wiki2.dovecot.org/Plugins/Antispam
@@ -211,7 +202,7 @@ echo "CREATE TABLE users (
     email varchar(128) NOT NULL DEFAULT '',
     name varchar(128) DEFAULT NULL,
     fullname varchar(128) DEFAULT NULL,
-    password varchar(32) NOT NULL DEFAULT '',
+    password varchar(128) NOT NULL DEFAULT '',
     home varchar(255) NOT NULL DEFAULT '',
 #priority int(11) NOT NULL DEFAULT '7',
 #policy_id int(10) unsigned NOT NULL DEFAULT '1',
@@ -228,10 +219,10 @@ PRIMARY KEY (id)
 # Making dovecot-lda deliver setuid root
 # (needed for delivery to different userids)
 #
-touch /var/log/imap
+#touch /var/log/imap
 #https://doc.dovecot.org/configuration_manual/protocols/lda/
-chgrp _dovecot /usr/local/libexec/dovecot/dovecot-lda
-chmod 4750 /usr/local/libexec/dovecot/dovecot-lda
+#chgrp _dovecot /usr/local/libexec/dovecot/dovecot-lda
+#chmod 4750 /usr/local/libexec/dovecot/dovecot-lda
 mkdir -p /var/mailserv/mail
 
 #---------------------------------------------------------------
