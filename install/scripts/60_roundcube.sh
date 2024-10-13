@@ -41,6 +41,12 @@ sed -i "/^\$config\['db_dsnw'] =/s/=.*$/= 'mysql:\/\/webmail:webmail@localhost\/
 deskey=`jot -r -c 24 40 126 | rs -g0`
 sed -i "/^\$config\['des_key'] =/s/=.*$/= '${deskey}';/"  /var/www/roundcubemail/config/config.inc.php
 
+# Change localhost to hostname so certificate matches
+sed -i "/^\$config\['smtp_host']/s/=.*$/= 'tls:\/\/%n:587';/" /var/www/roundcubemail/config/config.inc.php
+#DEBUG
+#sed -i '/smtp_host/a\
+#$config['"'smtp_debug'"'] = true;
+#'                                                       /var/www/roundcubemail/config/config.inc.php
 
 cat <<EOF >> ${basedir}/config/config.inc.php
 
@@ -81,13 +87,24 @@ EOF
 
 
 # Add active plugins
-perl -0777 -pi -e "s/$config\['plugins'\] =.*?\];/$config\['plugins'\] = \['archive','contextmenu','emoticons','markasjunk','password','vcard_attachments','zipdownload'\];/s"  \
+perl -0777 -pi -e "s/$config\['plugins'\] =.*?\];/$config\['plugins'\] = \['archive','contextmenu','emoticons','managesieve','markasjunk','password','vcard_attachments','zipdownload'\];/s"  \
     /var/www/roundcubemail/config/config.inc.php
 
-# TODO 'sieverules', 'sauserprefs'
-
-# TODO install -m 0644 /var/mailserv/install/templates/roundcube/sieverules/config.inc.php  #{basedir}/plugins/sieverules/
+# TODO 'sauserprefs'
+# https://packagist.org/packages/johndoh/sauserprefs
 # TODO install -m 0644 /var/mailserv/install/templates/roundcube/sauserprefs/config.inc.php #{basedir}/plugins/sauserprefs/
+
+
+## managesieve plugin
+# use default config
+# cp /var/www/roundcubemail/plugins/managesieve/config.inc.php.dist /var/www/roundcubemail/plugins/managesieve/config.inc.php
+# diff /var/www/roundcubemail/plugins/managesieve/config.inc.php.dist /var/www/roundcubemail/plugins/managesieve/config.inc.php
+# Allow users only one rulesets
+sed -i "/^\$config\['managesieve_disabled_actions'] =/s/=.*$/= ['list_sets'];/"     /var/www/roundcubemail/plugins/managesieve/config.inc.php
+# default name of list
+sed -i "/^\$config\['managesieve_script_name'] =/s/=.*$/= 'dovecot';/"              /var/www/roundcubemail/plugins/managesieve/config.inc.php
+#DEBUG
+#sed -i "/^\$config\['managesieve_debug'] =/s/=.*$/= true;/"                         /var/www/roundcubemail/plugins/managesieve/config.inc.php
 
 
 ## password plugin
