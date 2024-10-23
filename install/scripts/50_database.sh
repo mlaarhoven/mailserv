@@ -8,8 +8,6 @@ case $1 in
     unset VERSION
     
 
-    #also used by roundcube/password plugin
-    /usr/local/bin/mysql -e "grant all privileges on mail.* to 'mailadmin'@'localhost' identified by 'mailadmin';"
 
     cd /var/mailserv/admin && /usr/local/bin/rake -s db:setup RAILS_ENV=production
     cd /var/mailserv/admin && /usr/local/bin/rake -s db:migrate RAILS_ENV=production
