@@ -57,7 +57,7 @@ sed -i '/^#user_query/,/^$/d'                                               /etc
 
 # add iterate_query
 sed -i '/^#iterate_query/s/^#//'                                            /etc/dovecot/dovecot-sql.conf.ext
-sed -i '/^iterate_query =/s/=.*$/= SELECT email AS user FROM users'         /etc/dovecot/dovecot-sql.conf.ext
+sed -i '/^iterate_query =/s/=.*$/= SELECT email AS user FROM users/'         /etc/dovecot/dovecot-sql.conf.ext
 
 
 ### conf.d/10-auth.conf
