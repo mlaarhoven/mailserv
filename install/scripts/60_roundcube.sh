@@ -87,12 +87,8 @@ EOF
 
 
 # Add active plugins
-perl -0777 -pi -e "s/$config\['plugins'\] =.*?\];/$config\['plugins'\] = \['archive','contextmenu','emoticons','managesieve','markasjunk','password','vcard_attachments','zipdownload'\];/s"  \
+perl -0777 -pi -e "s/$config\['plugins'\] =.*?\];/$config\['plugins'\] = \['archive','contextmenu','emoticons','managesieve','markasjunk','password','persistent_login','sauserprefs','vcard_attachments','zipdownload'\];/s"  \
     /var/www/roundcubemail/config/config.inc.php
-
-# TODO 'sauserprefs'
-# https://packagist.org/packages/johndoh/sauserprefs
-# TODO install -m 0644 /var/mailserv/install/templates/roundcube/sauserprefs/config.inc.php #{basedir}/plugins/sauserprefs/
 
 
 ## managesieve plugin
@@ -122,6 +118,36 @@ sed -i "/^\$config\['password_strength_driver'] =/s/=.*$/= 'pwned';/"           
 sed -i "/^\$config\['password_minimum_score'] =/s/=.*$/= 3;/"                                       /var/www/roundcubemail/plugins/password/config.inc.php
 
 
+## persistent_login plugin
+# use default config
+# cp /var/www/roundcubemail/plugins/persistent_login/config.inc.php.dist /var/www/roundcubemail/plugins/persistent_login/config.inc.php
+# diff /var/www/roundcubemail/plugins/persistent_login/config.inc.php.dist /var/www/roundcubemail/plugins/persistent_login/config.inc.php
+# Use tokens
+sed -i "/ifpl_use_auth_tokens/s/=.*$/= true;/"     /var/www/roundcubemail/plugins/persistent_login/config.inc.php
+# create table to store tokens
+cat /var/www/roundcubemail/plugins/persistent_login/sql/mysql.sql | /usr/local/bin/mysql webmail
+
+
+## sauserprefs plugin
+# https://packagist.org/packages/johndoh/sauserprefs
+# Download release 1.20.1
+ftp -Vmo - https://github.com/johndoh/roundcube-sauserprefs/archive/refs/tags/1.20.1.tar.gz | tar zxf - -C ${basedir}/plugins/
+mv ${basedir}/plugins/roundcube-sauserprefs-1.20.1 ${basedir}/plugins/sauserprefs
+# use sample config
+cp ${basedir}/plugins/sauserprefs/config.inc.php.dist ${basedir}/plugins/sauserprefs/config.inc.php
+# diff /var/www/roundcubemail/plugins/sauserprefs/config.inc.php.dist /var/www/roundcubemail/plugins/sauserprefs/config.inc.php
+# spamassassin database settings
+sed -i "/^\$config\['sauserprefs_db_dsnw'] =/s/=.*$/= 'mysql:\/\/mailadmin:mailadmin@127.0.0.1\/mail';/"    /var/www/roundcubemail/plugins/sauserprefs/config.inc.php
+# username of the global or default settings user in the database
+sed -i "/^\$config\['sauserprefs_global_userid'] =/s/=.*$/= '@GLOBAL';/"                                    /var/www/roundcubemail/plugins/sauserprefs/config.inc.php
+# don't allow these sections to be overriden by the user
+sed -i "/^\$config\['sauserprefs_dont_override'] =/s/=.*$/= ['{bayes}','{tests}','{headers}'];/"            /var/www/roundcubemail/plugins/sauserprefs/config.inc.php
+# SpamAssassin Version 4
+sed -i "/^\$config\['sauserprefs_sav4'] =/s/=.*$/= true;/"                                                  /var/www/roundcubemail/plugins/sauserprefs/config.inc.php
+# default settings
+# these are overridden by @GLOBAL and user settings from the database
+sed -i "/rewrite_header Subject/s/=>.*$/=> '[SPAM _SCORE_]',/"                                              /var/www/roundcubemail/plugins/sauserprefs/config.inc.php
+sed -i "/report_safe/s/=>.*$/=> 0,/"                                                                        /var/www/roundcubemail/plugins/sauserprefs/config.inc.php
 
 
 
