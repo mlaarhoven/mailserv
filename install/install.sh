@@ -59,7 +59,7 @@ if [[ ! -d /usr/X11R6 ]]; then
 fi
 
 # run all install scripts
-for file in `ls /var/mailserv/install/scripts/*`; do
+for file in `ls /var/mailserv/install/scripts/*.sh`; do
   echo $file
   $file install 2>&1 | tee -a /var/log/install.log
 done
