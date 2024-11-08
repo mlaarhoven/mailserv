@@ -230,15 +230,16 @@ mkdir -p /var/mailserv/mail
 #  necessary to dovecot start up
 #  (when server reboot limits are read from login.conf, sysctl.conf) 
 #---------------------------------------------------------------
-maxfilestest=$( ulimit -n )
-
-if [ $maxfilestest -lt 1024 ];
-  then
-    echo " "
-    echo " setting openfiles-max to 1024 "
-    echo " "
-    ulimit -n 1024
-fi
+#Now in /etc/login.conf.d/dovecot
+# maxfilestest=$( ulimit -n )
+# 
+# if [ $maxfilestest -lt 1024 ];
+#   then
+#     echo " "
+#     echo " setting openfiles-max to 1024 "
+#     echo " "
+#     ulimit -n 1024
+# fi
 
 rcctl enable dovecot
 rcctl start dovecot
