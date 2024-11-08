@@ -13,9 +13,6 @@ pkg_add -v -m -I mariadb-server
 # initialize MariaDB data directory
 /usr/local/bin/mariadb-install-db
 
-# TODO check old settings
-#template="/var/mailserv/install/templates"
-#install -m 644 ${template}/my.cnf /etc
 # Use example my.cnf
 # cp /usr/local/share/examples/mysql/my.cnf /etc/my.cnf
 # diff /usr/local/share/examples/mysql/my.cnf /etc/my.cnf
@@ -35,7 +32,8 @@ init-connect='SET NAMES utf8mb4'
 character-set-server = utf8mb4
 EOF
 
-# 
+# Buffer sizes
+# https://mariadb.com/kb/en/mariadb-memory-allocation/
 cat <<EOF >> /etc/my.cnf
 
 # Smaller buffers
