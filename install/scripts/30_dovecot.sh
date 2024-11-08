@@ -107,6 +107,7 @@ sed -i '/^[[:blank:]]*special_use =/i\
 
 ### conf.d/15-lda.conf
 # use + or - as recipient_delimiter for detail mailboxes
+sed -i '/^#recipient_delimiter/s/^#//'                                      /etc/dovecot/conf.d/15-lda.conf
 sed -i '/^recipient_delimiter/s/=.*$/= +-/'                                 /etc/dovecot/conf.d/15-lda.conf
 
 
