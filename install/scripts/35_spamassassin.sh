@@ -116,6 +116,11 @@ sed -i '/Plugin::TextCat/s/^#//'                                /etc/mail/spamas
 /usr/local/bin/mysql -e "FLUSH PRIVILEGES"
 
 
+#postconf -M spamassassin/unix="spamassassin unix - n n - - pipe flags=Rqhu user=_spamdaemon argv=/usr/local/sbin/spamfilter    -oi -f \${sender} \${recipient} \${user}@\${domain}"
+
+#postconf -P smtp/inet/content_filter=spamassassin
+
+
 rcctl enable spamassassin
 rcctl set spamassassin flags -u _spamdaemon -P -s mail -xq -r /var/run/spamassassin.pid -i 127.0.0.1
 rcctl start  spamassassin
