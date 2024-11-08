@@ -37,8 +37,8 @@ echo "Installing Configuration"
 # connect to mysql database
 sed -i "/^\$config\['db_dsnw'] =/s/=.*$/= 'mysql:\/\/webmail:webmail@localhost\/webmail';/" /var/www/roundcubemail/config/config.inc.php
 
-# create random des_key
-deskey=`jot -r -c 24 40 126 | rs -g0`
+# create random des_key (avoid asc 39 ' and asc 47 /)
+deskey=`jot -r -c 24 48 126 | rs -g0`
 sed -i "/^\$config\['des_key'] =/s/=.*$/= '${deskey}';/"  /var/www/roundcubemail/config/config.inc.php
 
 # Change localhost to hostname so certificate matches
@@ -119,8 +119,10 @@ sed -i "/^\$config\['password_minimum_score'] =/s/=.*$/= 3;/"                   
 
 
 ## persistent_login plugin
+# https://github.com/mfreiholz/persistent_login
+ftp -Vmo - https://github.com/mfreiholz/persistent_login/archive/refs/tags/version-5.3.0.tar.gz | tar -zxf - -C /var/www/roundcubemail/plugins -s /persistent_login-version-[0-9\.]*/persistent_login/
 # use default config
-# cp /var/www/roundcubemail/plugins/persistent_login/config.inc.php.dist /var/www/roundcubemail/plugins/persistent_login/config.inc.php
+cp /var/www/roundcubemail/plugins/persistent_login/config.inc.php.dist /var/www/roundcubemail/plugins/persistent_login/config.inc.php
 # diff /var/www/roundcubemail/plugins/persistent_login/config.inc.php.dist /var/www/roundcubemail/plugins/persistent_login/config.inc.php
 # Use tokens
 sed -i "/ifpl_use_auth_tokens/s/=.*$/= true;/"     /var/www/roundcubemail/plugins/persistent_login/config.inc.php
