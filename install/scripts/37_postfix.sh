@@ -74,7 +74,8 @@ sed -i '/unix_listener lmtp/,/}/d'      /etc/dovecot/conf.d/10-master.conf
 # https://doc.dovecot.org/configuration_manual/howto/postfix_and_dovecot_sasl/
 postconf smtpd_sasl_type=dovecot
 postconf smtpd_sasl_path=private/auth
-postconf smtpd_sasl_auth_enable=yes
+# no authentication on port 25 allowed. Should use submission(s), port 587 or 465
+postconf smtpd_sasl_auth_enable=no
 postconf broken_sasl_auth_clients=yes
 
 # Add SASL socket to dovecot
@@ -107,21 +108,26 @@ postconf strict_rfc821_envelopes=yes
 ## CLIENT
 # Reject the request when the client IP address has no hostname
 postconf "smtpd_client_restrictions= \
-  reject_unknown_reverse_client_hostname"
+  reject_unknown_reverse_client_hostname \
+  reject_rbl_client zen.spamhaus.org \
+  reject_rbl_client bl.spamcop.net \
+  reject_rhsbl_reverse_client dbl.spamhaus.org"
 #   check_policy_service inet:127.0.0.1:2501      =>sqlgrey
 
 ## HELO
 #reject_invalid_helo_hostname  # Reject the request when the HELO or EHLO hostname is malformed.
 #reject_non_fqdn_helo_hostname # Reject the request when the HELO or EHLO hostname is not in fully-qualified domain or address literal form, as required by the RFC.
 #reject_unknown_helo_hostname  # Reject the request when the HELO or EHLO hostname has no DNS A or MX record.
-postconf "smtpd_helo_restrictions="
+postconf "smtpd_helo_restrictions= \
+  reject_rhsbl_helo dbl.spamhaus.org"
 
 ## SENDER
 # Don't accept mail from domains that don't exist.
 # Reject the request when the MAIL FROM address specifies a domain that is not in fully-qualified domain form
 postconf "smtpd_sender_restrictions= \
   reject_unknown_sender_domain \
-  reject_non_fqdn_sender"
+  reject_non_fqdn_sender \
+  reject_rhsbl_sender dbl.spamhaus.org"
 
 ## RECIPIENT
 # Reject the request when recipient domain has no DNS MX
@@ -130,14 +136,7 @@ postconf "smtpd_sender_restrictions= \
 # Reject using rbl & rhsbl
 postconf "smtpd_recipient_restrictions= \
   reject_unknown_recipient_domain \
-  reject_non_fqdn_recipient \
-  permit_mynetworks \
-  permit_sasl_authenticated \
-  reject_rbl_client zen.spamhaus.org \
-  reject_rbl_client bl.spamcop.net \
-  reject_rhsbl_reverse_client dbl.spamhaus.org \
-  reject_rhsbl_helo dbl.spamhaus.org \
-  reject_rhsbl_sender dbl.spamhaus.org"
+  reject_non_fqdn_recipient"
 
 ## RELAY
 postconf "smtpd_relay_restrictions= \
@@ -237,17 +236,13 @@ postconf -M submission/inet="submission inet n - y - - smtpd"
 postconf -P submission/inet/syslog_name=postfix\/submission
 postconf -P submission/inet/smtpd_tls_security_level=encrypt
 postconf -P submission/inet/smtpd_sasl_auth_enable=yes
-#  -o smtpd_tls_auth_only=yes
-#  -o smtpd_reject_unlisted_recipient=no
-#     Instead of specifying complex smtpd_<xxx>_restrictions here,
-#     specify "smtpd_<xxx>_restrictions=$mua_<xxx>_restrictions"
-#     here, and specify mua_<xxx>_restrictions in main.cf (where
-#     "<xxx>" is "client", "helo", "sender", "relay", or "recipient").
-#  -o smtpd_client_restrictions=
-#  -o smtpd_helo_restrictions=
-#  -o smtpd_sender_restrictions=
-#  -o smtpd_relay_restrictions=
-#  -o smtpd_recipient_restrictions=permit_sasl_authenticated,reject
+postconf -P submission/inet/smtpd_tls_auth_only=yes
+postconf -P submission/inet/smtpd_reject_unlisted_recipient=no
+postconf -P submission/inet/smtpd_client_restrictions=
+postconf -P submission/inet/smtpd_helo_restrictions=
+postconf -P submission/inet/smtpd_sender_restrictions=
+postconf -P submission/inet/smtpd_relay_restrictions=
+postconf -P submission/inet/smtpd_recipient_restrictions=permit_sasl_authenticated,reject
 #  -o milter_macro_daemon_name=ORIGINATING
 
 # TODO clamav
@@ -260,16 +255,12 @@ postconf -M submissions/inet="submissions inet n - y - - smtpd"
 postconf -P submissions/inet/syslog_name=postfix\/submissions
 postconf -P submissions/inet/smtpd_tls_wrappermode=yes
 postconf -P submissions/inet/smtpd_sasl_auth_enable=yes
-#  -o smtpd_reject_unlisted_recipient=no
-#     Instead of specifying complex smtpd_<xxx>_restrictions here,
-#     specify "smtpd_<xxx>_restrictions=$mua_<xxx>_restrictions"
-#     here, and specify mua_<xxx>_restrictions in main.cf (where
-#     "<xxx>" is "client", "helo", "sender", "relay", or "recipient").
-#  -o smtpd_client_restrictions=
-#  -o smtpd_helo_restrictions=
-#  -o smtpd_sender_restrictions=
-#  -o smtpd_relay_restrictions=
-#  -o smtpd_recipient_restrictions=permit_sasl_authenticated,reject
+postconf -P submissions/inet/smtpd_reject_unlisted_recipient=no
+postconf -P submissions/inet/smtpd_client_restrictions=
+postconf -P submissions/inet/smtpd_helo_restrictions=
+postconf -P submissions/inet/smtpd_sender_restrictions=
+postconf -P submissions/inet/smtpd_relay_restrictions=
+postconf -P submissions/inet/smtpd_recipient_restrictions=permit_sasl_authenticated,reject
 #  -o milter_macro_daemon_name=ORIGINATING
 
 # TODO clamav
