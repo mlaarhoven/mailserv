@@ -97,19 +97,33 @@ sed -i '/# Postfix smtp-auth/i\
 # https://www.postfix.org/ADDRESS_VERIFICATION_README.html
 
 # https://www.postfix.org/SMTPD_ACCESS_README.html#global
+# Requiring that the client sends the HELO or EHLO command
 postconf smtpd_helo_required=yes
-# RFC 821 Compliance https://www.postfix.org/postconf.5.html#strict_rfc821_envelopes
+# RFC 821 Compliance
 postconf strict_rfc821_envelopes=yes
 
 
+# https://www.postfix.org/SMTPD_ACCESS_README.html#lists
+## CLIENT
 # Reject the request when the client IP address has no hostname
-postconf smtpd_client_restrictions=reject_unknown_reverse_client_hostname
+postconf "smtpd_client_restrictions= \
+  reject_unknown_reverse_client_hostname"
 #   check_policy_service inet:127.0.0.1:2501      =>sqlgrey
 
+## HELO
+#reject_invalid_helo_hostname  # Reject the request when the HELO or EHLO hostname is malformed.
+#reject_non_fqdn_helo_hostname # Reject the request when the HELO or EHLO hostname is not in fully-qualified domain or address literal form, as required by the RFC.
+#reject_unknown_helo_hostname  # Reject the request when the HELO or EHLO hostname has no DNS A or MX record.
+postconf "smtpd_helo_restrictions="
+
+## SENDER
 # Don't accept mail from domains that don't exist.
 # Reject the request when the MAIL FROM address specifies a domain that is not in fully-qualified domain form
-postconf smtpd_sender_restrictions=reject_unknown_sender_domain,reject_non_fqdn_sender
+postconf "smtpd_sender_restrictions= \
+  reject_unknown_sender_domain \
+  reject_non_fqdn_sender"
 
+## RECIPIENT
 # Reject the request when recipient domain has no DNS MX
 # Reject the request when the RCPT TO address specifies a domain that is not in fully-qualified domain form
 # Permit mynetworks or authenticated users
@@ -125,12 +139,18 @@ postconf "smtpd_recipient_restrictions= \
   reject_rhsbl_helo dbl.spamhaus.org \
   reject_rhsbl_sender dbl.spamhaus.org"
 
-postconf smtpd_relay_restrictions=permit_mynetworks,permit_sasl_authenticated,reject_unauth_destination
+## RELAY
+postconf "smtpd_relay_restrictions= \
+  permit_mynetworks \
+  permit_sasl_authenticated \
+  reject_unauth_destination"
 
+## DATA
 # Block clients that speak too early.
-postconf smtpd_data_restrictions=reject_unauth_pipelining
+postconf "smtpd_data_restrictions= \
+  reject_unauth_pipelining"
 
-
+## END OF DATA
 
 
 
@@ -147,11 +167,8 @@ postconf smtpd_tls_loglevel=1
 postconf smtpd_tls_received_header=yes
 
 # SMTP client
-#TODO dane?
-  #smtp_tls_security_level=dane
-  #smtp_dns_support_level=dnssec
-  #When using Postfix DANE support the "smtp_host_lookup" parameter should include "dns"
-postconf smtp_tls_security_level=may
+postconf smtp_tls_security_level=dane
+postconf smtp_dns_support_level=dnssec
 postconf smtp_tls_loglevel=1
 postconf smtp_tls_note_starttls_offer=yes
 #postconf smtp_tls_chain_files=/etc/ssl/private/server.key,/etc/ssl/server.crt
@@ -167,6 +184,13 @@ postconf smtp_tls_CAfile=/etc/ssl/cert.pem
 # to allow messages of approximately 20 MB, perform the following calculation:
 #  20971520 bytes * 4/3 for Base64 encoding = 27962027 (rounded up)
 postconf message_size_limit=27962027
+
+# prevent SMTP Smuggling
+# https://www.postfix.org/smtp-smuggling.html
+#postconf smtpd_forbid_bare_newline=normalize
+# for postfix 3.7.9
+postconf smtpd_forbid_bare_newline=yes
+
 
 # Milter settings
 # TODO
