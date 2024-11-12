@@ -28,6 +28,7 @@ postconf virtual_transport=lmtp:unix:private/dovecot-lmtp
 
 # https://www.postfix.org/mysql_table.5.html
 # TODO stored procedures?
+## DOMAINS (use dovecot table mail.domains)
 cat <<EOF > /etc/postfix/mysql-domains.cf
 hosts = localhost
 user = postfix
@@ -37,6 +38,7 @@ query = SELECT name FROM domains WHERE name='%s'
 EOF
 postconf virtual_mailbox_domains=proxy:mysql:/etc/postfix/mysql-domains.cf
 
+## MAILBOX (use dovecot table mail.users)
 cat <<EOF > /etc/postfix/mysql-mailboxes.cf
 hosts = localhost
 user = postfix
@@ -46,12 +48,41 @@ query = SELECT CONCAT(SUBSTRING_INDEX(email,'@',-1),'/',SUBSTRING_INDEX(email,'@
 EOF
 postconf virtual_mailbox_maps=proxy:mysql:/etc/postfix/mysql-mailboxes.cf
 postconf virtual_minimum_uid=2000
-#postconf virtual_uid_maps=proxy:mysql:/etc/postfix/sql/user.cf
-#postconf virtual_gid_maps=proxy:mysql:/etc/postfix/sql/group.cf
-#forwarding
-#postconf virtual_alias_domains = 
-#postconf virtual_alias_maps         = proxy:mysql:/etc/postfix/sql/forwardings.cf 
-#                                      proxy:mysql:/etc/postfix/sql/email2email.cf
+
+## ALIAS (create new table mail.forwardings)
+echo "CREATE TABLE forwardings (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  domain_id int(11) NOT NULL,
+  source varchar(128) NOT NULL,
+  destination text NOT NULL,
+  created_at datetime DEFAULT NULL,
+  updated_at datetime DEFAULT NULL,
+  PRIMARY KEY (id)
+)" | /usr/local/bin/mysql mail
+/usr/local/bin/mysql mail -e "ALTER TABLE forwardings ADD FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE RESTRICT ON UPDATE RESTRICT;"
+# new mysql user "postfix"
+/usr/local/bin/mysql -e "CREATE USER 'postfix'@'localhost' identified by 'postfix'"
+/usr/local/bin/mysql -e "GRANT SELECT ON mail.domains     TO 'postfix'@'localhost'"
+/usr/local/bin/mysql -e "GRANT SELECT ON mail.users       TO 'postfix'@'localhost'"
+/usr/local/bin/mysql -e "GRANT SELECT ON mail.forwardings TO 'postfix'@'localhost'"
+/usr/local/bin/mysql -e "FLUSH PRIVILEGES"
+
+cat <<EOF > /etc/postfix/mysql-forwardings.cf
+hosts = localhost
+user = postfix
+password = postfix
+dbname = mail
+query = SELECT destination FROM forwardings WHERE source='%s'
+EOF
+cat <<EOF > /etc/postfix/mysql-email2email.cf
+hosts = localhost
+user = postfix
+password = postfix
+dbname = mail
+query = SELECT email FROM users WHERE email='%s'
+EOF
+postconf virtual_alias_domains=
+postconf virtual_alias_maps=proxy:mysql:/etc/postfix/mysql-forwardings.cf,proxy:mysql:/etc/postfix/mysql-email2email.cf
 
 
 # Add LMTP socket to dovecot
@@ -222,9 +253,6 @@ postconf smtpd_forbid_bare_newline=yes
 #     unix:passwd.byname
 
 
-#TODO SMTP smuggling?
-# https://www.postfix.org/smtp-smuggling.html
-
 
 ### master.cf
 # use example config
@@ -279,11 +307,8 @@ install -m 644 ${template}/milter_header_checks /etc/postfix
 #
 # Install the /etc/postfix/sql files
 #
-#install ${template}/sql/email2email.cf  /etc/postfix/sql/
-#install ${template}/sql/forwardings.cf  /etc/postfix/sql/
-#install ${template}/sql/group.cf        /etc/postfix/sql/
 #install ${template}/sql/routing.cf      /etc/postfix/sql/
-#install ${template}/sql/user.cf         /etc/postfix/sql/
+
 
 # Make sure that the mailer is being set
 if [[ `grep "/usr/sbin/smtpctl" /etc/mailer.conf | wc -l` -gt 0 ]]; then
