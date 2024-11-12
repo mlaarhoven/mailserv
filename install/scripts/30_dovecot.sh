@@ -30,7 +30,7 @@ sed -i '/^#driver/s/^#//'                                                   /etc
 sed -i '/^driver =/s/=.*$/= mysql/'                                         /etc/dovecot/dovecot-sql.conf.ext
 # TODO new dovecot user?
 sed -i '/^#connect/s/^#//'                                                  /etc/dovecot/dovecot-sql.conf.ext
-sed -i '/^connect =/s/=.*$/= host=127.0.0.1 dbname=mail user=postfix password=postfix/' /etc/dovecot/dovecot-sql.conf.ext
+sed -i '/^connect =/s/=.*$/= host=127.0.0.1 dbname=mail user=dovecot password=dovecot/' /etc/dovecot/dovecot-sql.conf.ext
 
 # TODO not use PLAIN?
 sed -i '/^#default_pass_scheme/s/^#//'                                      /etc/dovecot/dovecot-sql.conf.ext
@@ -181,8 +181,6 @@ sed -i '/#quota = maildir/s/#//'                                            /etc
 
 
 /usr/local/bin/mysqladmin create mail
-/usr/local/bin/mysql -e "grant select on mail.* to 'postfix'@'localhost' identified by 'postfix';"
-/usr/local/bin/mysql -e "FLUSH PRIVILEGES"
 
 # Create tables
 echo "CREATE TABLE domains ( \
@@ -210,10 +208,16 @@ echo "CREATE TABLE users (
     created_at datetime DEFAULT NULL,
     updated_at datetime DEFAULT NULL,
     quota int(11) DEFAULT NULL,
-PRIMARY KEY (id)
+PRIMARY KEY (id),
+UNIQUE KEY email_uniq (email)
 ) AUTO_INCREMENT=2000" | /usr/local/bin/mysql mail
 
 /usr/local/bin/mysql mail -e "ALTER TABLE users ADD FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE RESTRICT ON UPDATE RESTRICT;"
+
+/usr/local/bin/mysql -e "CREATE USER 'dovecot'@'localhost' identified by 'dovecot'"
+/usr/local/bin/mysql -e "GRANT SELECT ON mail.domains TO 'dovecot'@'localhost'"
+/usr/local/bin/mysql -e "GRANT SELECT ON mail.users   TO 'dovecot'@'localhost'"
+/usr/local/bin/mysql -e "FLUSH PRIVILEGES"
 
 
 #
