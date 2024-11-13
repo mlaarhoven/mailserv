@@ -187,6 +187,10 @@ postconf "smtpd_data_restrictions= \
 
 # TLS Settings
 # https://www.postfix.org/TLS_README.html
+  # https://www.sidn.nl/en/modern-internet-standards/hands-on-implementing-dane-in-postfix
+# enforce server's cipher preference order over client's order for incoming connections
+postconf tls_preempt_cipherlist=yes
+postconf tls_ssl_options=NO_COMPRESSION
 
 # SMTP server
 # smtp 25/tcp mail
